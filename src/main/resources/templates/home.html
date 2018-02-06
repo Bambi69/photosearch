@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Hello Gaël !</title>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous" />
+
+    <!-- image gallery pure css -->
+    <link rel="stylesheet" type="text/css" href="flexbin.css" />
+
+    <!-- left side bar -->
+    <link rel="stylesheet" type="text/css" href="sidebar.css"/>
+
+</head>
+<body>
+
+<!-- navigation bar -->
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">Mes photos</a>
+        <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navigationBar" aria-controls="navigationBar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navigationBar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{/}">Accueil <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <form name="logout" th:action="@{/logout}" method="post" >
+                        <a class="nav-link" href="#" onclick="Logout()" >Déconnexion</a>
+                    </form>
+                </li>
+            </ul>
+            <form class="form-inline mt-2 mt-md-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Rechercher" aria-label="Rechercher" />
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
+            </form>
+        </div>
+    </nav>
+</header>
+
+<!-- page content -->
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- left side bar -->
+        <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-dark sidebar">
+
+            <!-- faces facets -->
+            <ul class="nav nav-pills flex-column">
+
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" th:text="${photoList.faces.name}" data-toggle="collapse" data-target="#facesFacet">
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <div id="facesFacet" class="collapse">
+                    <li th:each="face: ${photoList.faces.facetEntries}" class="nav-item">
+                        <a class="nav-link" th:href="@{/home(type=face,filter=${face.key})}" th:text="${face.key} + ' (' + ${face.value} + ')'">
+                        </a>
+                    </li>
+                </div>
+            </ul>
+
+            <!-- dates facets -->
+            <ul class="nav nav-pills flex-column">
+
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" th:text="${photoList.dates.name}" data-toggle="collapse" data-target="#datesFacet">
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <div id="datesFacet" class="collapse">
+                    <li th:each="year: ${photoList.dates.facetEntries}" class="nav-item">
+                        <a class="nav-link" th:href="@{/home(type=year,filter=${year.title})}" th:text="${year.title} + ' (' + ${year.count} + ')'">
+                        </a>
+                        <li th:each="month: ${year.entry}" class="sub-nav-item">
+                            <a class="nav-link" th:href="@{/home(type=month,filter=${month.key})}" th:text="${month.key} + ' (' + ${month.value} + ')'">
+                            </a>
+                        </li>
+                    </li>
+                </div>
+            </ul>
+        </nav>
+
+        <!-- image gallery -->
+        <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
+            <section class="row text-center placeholders">
+
+                <div class="flexbin flexbin-margin" >
+                    <a th:each="photo,iterationstatus :${photoList.photos}" th:href="${photo.url}">
+                        <img th:alt="${photo.name}" th:src="${photo.url}"/>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div> <!-- row -->
+</div> <!-- container-fluid -->
+
+<form th:action="@{/greeting?name=Gael}" method="post">
+    <input type="submit" value="Greeting"/>
+</form>
+
+<!-- Placed at the end of the document so the pages load faster -->
+<script language="javascript">
+    function Logout()
+    {
+        document.logout.submit();
+    }
+</script>
+<script >
+$(function(){
+    $(".side-nav .collapse").on("hide.bs.collapse", function() {
+        $(this).prev().find(".fa").eq(1).removeClass("fa-angle-right").addClass("fa-angle-down");
+    });
+    $('.side-nav .collapse').on("show.bs.collapse", function() {
+        $(this).prev().find(".fa").eq(1).removeClass("fa-angle-down").addClass("fa-angle-right");
+    });
+})
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+
+</body>
+</html>
