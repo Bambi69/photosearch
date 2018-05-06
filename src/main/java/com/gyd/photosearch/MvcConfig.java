@@ -18,7 +18,8 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
                 .addResourceHandler("/photos/**")
-                .addResourceLocations("file:/Users/gaelyvrard/Projets/");
+                .addResourceLocations("file:/Users/gaelyvrard/Projets/")
+                .addResourceLocations("file:/home/photo/photos_to_index/");
     }
 
 }
