@@ -111,7 +111,7 @@ public class Photo implements Serializable {
 
     public String getUrl() {
         //TODO we must delete the root path
-        return "/photos/jdd/" + getName();
+        return "/photos/" + getName();
     }
 
     public void setUrl(String url) {
