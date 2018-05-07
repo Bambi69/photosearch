@@ -2,10 +2,13 @@ package com.gyd.photosearch.util;
 
 import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
+
+    private static String ES_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
     /**
      * convert org.joda.time.DateTime to java.util.Date
@@ -36,5 +39,14 @@ public class DateUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return String.format("%02d", cal.get(Calendar.MONTH)+1);
+    }
+
+    /**
+     * convert date to elasticsearch string format
+     * @param d date to convert
+     * @return string date to index
+     */
+    public static String convertDateToEsFormat(Date d){
+        return new SimpleDateFormat(ES_DATE_FORMAT).format(d);
     }
 }

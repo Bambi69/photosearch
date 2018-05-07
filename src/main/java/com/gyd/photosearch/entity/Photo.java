@@ -20,6 +20,7 @@ public class Photo implements Serializable {
     private Date dateIndexed;
     private Image imageToDisplay;
     private String url;
+    private byte[] json; // to index photo, we need photo in json format
 
     public String getName() {
         return name;
@@ -116,5 +117,13 @@ public class Photo implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public byte[] getJson() {
+        return json;
+    }
+
+    public void setJson(byte[] json) {
+        this.json = json;
     }
 }
