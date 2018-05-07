@@ -7,11 +7,13 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.GpsDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
+import com.drew.metadata.jpeg.JpegDirectory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gyd.photosearch.entity.Location;
 import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.repository.IndexationRepository;
 import com.gyd.photosearch.util.DateUtil;
+import com.gyd.photosearch.util.ImageResizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +81,7 @@ public class IndexationServiceImpl implements IndexationService {
                     // read image metadata
                     Metadata metadata = ImageMetadataReader.readMetadata(listOfFiles[i]);
 
-                    // read exif metadata
+                    // READ EXIF METADATA
                     ExifIFD0Directory exifFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
                     if (exifFD0Directory != null) {
 
@@ -97,24 +99,26 @@ public class IndexationServiceImpl implements IndexationService {
                         p.setCameraModel(cameraModel);
                     }
 
-                    // retrieve keywords (with identified faces)
+                    // READ IPTC METADATA
                     IptcDirectory iptcDirectory = metadata.getFirstDirectoryOfType(IptcDirectory.class);
                     if (iptcDirectory != null) {
+
+                        // retrieve keywords (with identified faces)
                         String[] keywords = iptcDirectory.getStringArray(IptcDirectory.TAG_KEYWORDS);
 
                         if (keywords != null) {
                             for (int j = 0; j < keywords.length; j++) {
-                                logger.info("keywords " + keywords[j]);
+                                //logger.info("keywords " + keywords[j]);
                                 p.getFaces().add(keywords[j]);
                             }
                         }
                     }
 
-                    // retrieve GPS coordinates
+                    // READ GPS METADATA
                     GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
                     if (gpsDirectory != null) {
 
-                        // init location
+                        // retrieve GPS coordinates
                         p.setLocation(new Location());
 
                         // calculate longitude
@@ -144,8 +148,25 @@ public class IndexationServiceImpl implements IndexationService {
                         logger.info("latitude: " + latitude);
                     }
 
+                    // READ JPEG METADATA
+                    JpegDirectory jpegDirectory = metadata.getFirstDirectoryOfType(JpegDirectory.class);
+                    if (jpegDirectory != null) {
+
+                        // retrieve resolution
+                        String resolution =
+                                jpegDirectory.getString(JpegDirectory.TAG_IMAGE_WIDTH)
+                                + "x"
+                                + jpegDirectory.getString(JpegDirectory.TAG_IMAGE_HEIGHT);
+                        p.setResolution(resolution);
+                        logger.info("resolution " + resolution);
+                    }
+
                     // generate json (needed to index it in elastic search)
                     p.setJson(mapper.writeValueAsBytes(p));
+
+                    // generate thumbnail image
+                    ImageResizer.createThumbnailImage(
+                            imagePath + p.getName(),imagePath + p.getName());
 
                     // add Photo into the list
                     photos.add(p);
