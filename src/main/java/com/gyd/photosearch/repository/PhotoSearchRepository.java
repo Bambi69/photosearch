@@ -9,7 +9,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PhotoRepository extends ElasticsearchRepository {
+public class PhotoSearchRepository extends ElasticsearchRepository {
 
     /**
      * list all photos from photo index
@@ -17,7 +17,7 @@ public class PhotoRepository extends ElasticsearchRepository {
      */
     public SearchResponse findByCriteria(String faceValue) throws TechnicalException {
 
-        logger.info("PhotoRepository - findAll");
+        logger.info("PhotoSearchRepository - findAll");
 
         // query elasticsearch
         SearchRequestBuilder request = esClient.prepareSearch("photo_index")

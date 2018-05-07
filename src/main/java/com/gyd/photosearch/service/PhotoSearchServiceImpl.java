@@ -1,7 +1,7 @@
 package com.gyd.photosearch.service;
 
 import com.gyd.photosearch.entity.*;
-import com.gyd.photosearch.repository.PhotoRepository;
+import com.gyd.photosearch.repository.PhotoSearchRepository;
 import com.gyd.photosearch.util.DateUtil;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
@@ -15,10 +15,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class PhotoServiceImpl extends TemplateService<Photo> implements PhotoService {
+public class PhotoSearchServiceImpl extends TemplateService<Photo> implements PhotoSearchService {
 
     @Autowired
-    private PhotoRepository photoRepository;
+    private PhotoSearchRepository photoSearchRepository;
 
     @Override
     public PhotoList findByFilter(String filterType, String filterValue) throws Exception {
@@ -29,9 +29,9 @@ public class PhotoServiceImpl extends TemplateService<Photo> implements PhotoSer
 
         // query elasticsearch
         if (filterType != null && filterType.compareTo("face") == 0) {
-            searchResponse = photoRepository.findByCriteria(filterValue);
+            searchResponse = photoSearchRepository.findByCriteria(filterValue);
         } else {
-            searchResponse = photoRepository.findByCriteria(null);
+            searchResponse = photoSearchRepository.findByCriteria(null);
         }
 
         //////////////////////////////////////////////
