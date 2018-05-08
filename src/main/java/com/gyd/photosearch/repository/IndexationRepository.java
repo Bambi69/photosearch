@@ -17,6 +17,10 @@ public class IndexationRepository extends ElasticsearchRepository {
     private String photoIndexName;
     @Value("${elasticsearch.photoindex.type}")
     private String photoIndexType;
+    @Value("${deleteIndexIfAlreadyExist}")
+    private Boolean deleteIndexIfAlreadyExist;
+
+
 
     /**
      * index photos
@@ -24,7 +28,9 @@ public class IndexationRepository extends ElasticsearchRepository {
     public void indexPhotos(List<Photo> photos) {
 
         // firstly, create photo index and delete it if already exists
-        createPhotoIndex();
+        if (deleteIndexIfAlreadyExist) {
+            createPhotoIndex();
+        }
 
         // browse photos to index
         Iterator<Photo> itPhoto = photos.iterator();
@@ -37,7 +43,7 @@ public class IndexationRepository extends ElasticsearchRepository {
             esClient.prepareIndex(
                     photoIndexName,
                     photoIndexType,
-                    photoToBeIndexed.getDirectory() + photoToBeIndexed.getName())
+                    photoToBeIndexed.getName())
                     .setSource(photoToBeIndexed.getJson(), XContentType.JSON)
                     .get();
         }
@@ -50,9 +56,10 @@ public class IndexationRepository extends ElasticsearchRepository {
 
         // delete index before starting
         try {
-            DeleteIndexResponse deleteResponse = esClient.admin().indices()
-                    .delete(new DeleteIndexRequest(photoIndexName)).actionGet();
-            logger.info("index " + photoIndexName + " successfully deleted");
+                DeleteIndexResponse deleteResponse = esClient.admin().indices()
+                        .delete(new DeleteIndexRequest(photoIndexName)).actionGet();
+                logger.info("index " + photoIndexName + " successfully deleted");
+
         } catch (Exception e) {
             logger.warn(e.getMessage());
         }

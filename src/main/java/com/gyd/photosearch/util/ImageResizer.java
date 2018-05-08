@@ -10,8 +10,11 @@ import static java.lang.Math.min;
 
 public class ImageResizer {
 
-    private static int THUMBNAIL_MAX_HEIGHT = 400;
-    private static int THUMBNAIL_MAX_WIDTH = 400;
+    private static int THUMBNAIL_MAX_HEIGHT = 800;
+    private static int THUMBNAIL_MAX_WIDTH = 800;
+
+    private static int HIGH_QUALITY_MAX_HEIGHT = 1600;
+    private static int HIGH_QUALITY_MAX_WIDTH = 1600;
 
     private static BufferedImage inputImage;
 
@@ -25,11 +28,35 @@ public class ImageResizer {
     public static void createThumbnailImage(String inputImagePath, String outputImagePath)
             throws IOException {
 
+        createImageInDifferentFormat(inputImagePath, outputImagePath, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT);
+    }
+
+    /**
+     * Create high quality image
+     * @param inputImagePath Path of the original image
+     * @param outputImagePath Path to save the resized image
+     * @throws IOException
+     */
+    public static void createHighQualityImage(String inputImagePath, String outputImagePath)
+            throws IOException {
+
+        createImageInDifferentFormat(inputImagePath, outputImagePath, HIGH_QUALITY_MAX_WIDTH, HIGH_QUALITY_MAX_HEIGHT);
+    }
+
+    /**
+     * Create image in different format : target or thumbnail
+     * @param inputImagePath Path of the original image
+     * @param outputImagePath Path to save the resized image
+     * @throws IOException
+     */
+    private static void createImageInDifferentFormat(String inputImagePath, String outputImagePath, int maxWidth, int maxHeight)
+            throws IOException {
+
         File inputFile = new File(inputImagePath);
         inputImage = ImageIO.read(inputFile);
         double targetPercent = min(
-                (double) THUMBNAIL_MAX_WIDTH / (double) inputImage.getWidth(),
-                (double) THUMBNAIL_MAX_HEIGHT / (double) inputImage.getHeight());
+                (double) maxWidth / (double) inputImage.getWidth(),
+                (double) maxHeight / (double) inputImage.getHeight());
         resize(outputImagePath, targetPercent);
     }
 

@@ -9,7 +9,7 @@ import java.util.List;
 public class Photo implements Serializable {
 
     private String name;
-    private String directory;
+    private String thbName; // thumbnail generated file name
     private String dateTimeOriginal;
     private Integer yearTimeOriginal;
     private Integer monthTimeOriginal;
@@ -20,6 +20,7 @@ public class Photo implements Serializable {
     private Date dateIndexed;
     private Image imageToDisplay;
     private String url;
+    private String thbUrl; // thumbnail image url
     private String resolution;
     private byte[] json; // to index photo, we need photo in json format
 
@@ -29,14 +30,6 @@ public class Photo implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDirectory() {
-        return directory;
-    }
-
-    public void setDirectory(String directory) {
-        this.directory = directory;
     }
 
     public String getDateTimeOriginal() {
@@ -120,6 +113,15 @@ public class Photo implements Serializable {
         this.url = url;
     }
 
+    public String getThbUrl() {
+        //TODO we must delete the root path
+        return "/photos/" + getThbName();
+    }
+
+    public void setThbUrl(String thbUrl) {
+        this.thbUrl = thbUrl;
+    }
+
     public byte[] getJson() {
         return json;
     }
@@ -134,5 +136,13 @@ public class Photo implements Serializable {
 
     public void setResolution(String resolution) {
         this.resolution = resolution;
+    }
+
+    public String getThbName() {
+        return thbName;
+    }
+
+    public void setThbName(String thbName) {
+        this.thbName = thbName;
     }
 }

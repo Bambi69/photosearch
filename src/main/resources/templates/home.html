@@ -101,7 +101,7 @@
 
                 <div class="flexbin flexbin-margin" >
                     <a th:each="photo,iterationstatus :${photoList.photos}" th:href="${photo.url}">
-                        <img th:alt="${photo.name}" th:src="${photo.url}"/>
+                        <img th:alt="${photo.name}" th:src="${photo.thbUrl}"/>
                     </a>
                 </div>
             </section>
