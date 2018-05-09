@@ -1,5 +1,6 @@
 package com.gyd.photosearch.repository;
 
+import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -8,6 +9,10 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.springframework.stereotype.Repository;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public class PhotoSearchRepository extends ElasticsearchRepository {
 
@@ -15,7 +20,7 @@ public class PhotoSearchRepository extends ElasticsearchRepository {
      * list all photos from photo index
      * @return list of photos
      */
-    public SearchResponse findByCriteria(String faceValue) throws TechnicalException {
+    public SearchResponse findByCriteria(SearchParameters searchParameters) throws TechnicalException {
 
         logger.info("PhotoSearchRepository - findAll");
 
@@ -35,8 +40,21 @@ public class PhotoSearchRepository extends ElasticsearchRepository {
                 .setFrom(0).setSize(100).setExplain(true)
                 ;
 
-        if (faceValue != null && faceValue.compareTo("") != 0) {
-            request.setQuery(QueryBuilders.termQuery("faces.keyword", faceValue)); // Query
+        // filter by text
+        if (searchParameters != null && searchParameters.getTextToSearch() != null
+                && searchParameters.getTextToSearch().compareTo("") != 0) {
+            request.setQuery(QueryBuilders.queryStringQuery(searchParameters.getTextToSearch()));
+        }
+
+        // filter by face
+        if (searchParameters != null && searchParameters.getSelectedFacetValues() != null) {
+            for (Map.Entry<String, List<String>> entry : searchParameters.getSelectedFacetValues().entrySet()) {
+                Iterator<String> entryIt = entry.getValue().iterator();
+                while (entryIt.hasNext()) {
+                    String facetValue = entryIt.next();
+                    request.setQuery(QueryBuilders.termQuery("faces.keyword", facetValue));
+                }
+            }
         }
 
         return request.get();

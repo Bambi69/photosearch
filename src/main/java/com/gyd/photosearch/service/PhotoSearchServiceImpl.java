@@ -21,18 +21,14 @@ public class PhotoSearchServiceImpl extends TemplateService<Photo> implements Ph
     private PhotoSearchRepository photoSearchRepository;
 
     @Override
-    public PhotoList findByFilter(String filterType, String filterValue) throws Exception {
+    public PhotoList findByCriteria(SearchParameters searchParameters) throws Exception {
 
         // init variables
         SearchResponse searchResponse;
         PhotoList result = new PhotoList();
 
         // query elasticsearch
-        if (filterType != null && filterType.compareTo("face") == 0) {
-            searchResponse = photoSearchRepository.findByCriteria(filterValue);
-        } else {
-            searchResponse = photoSearchRepository.findByCriteria(null);
-        }
+        searchResponse = photoSearchRepository.findByCriteria(searchParameters);
 
         //////////////////////////////////////////////
         // retrieve faces facets from response
@@ -92,5 +88,4 @@ public class PhotoSearchServiceImpl extends TemplateService<Photo> implements Ph
         // return result
         return result;
     }
-
 }

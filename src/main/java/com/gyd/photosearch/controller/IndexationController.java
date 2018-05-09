@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class IndexationController {
 
-    private static final Logger logger = LogManager.getLogger("HelloWorld");
+    private Logger logger = LogManager.getRootLogger();
 
     @Autowired
     private IndexationService indexationService;

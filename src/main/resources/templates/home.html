@@ -43,8 +43,8 @@
                     </form>
                 </li>
             </ul>
-            <form class="form-inline mt-2 mt-md-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="Rechercher" aria-label="Rechercher" />
+            <form name="search" th:action="@{/searchByText}" method="post" class="form-inline mt-2 mt-md-0">
+                <input name="textToSearch" class="form-control mr-sm-2" type="text" placeholder="Rechercher" aria-label="Rechercher" required="true" />
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
             </form>
         </div>
@@ -68,7 +68,7 @@
                 </li>
                 <div id="facesFacet" class="collapse">
                     <li th:each="face: ${photoList.faces.facetEntries}" class="nav-item">
-                        <a class="nav-link" th:href="@{/home(type=face,filter=${face.key})}" th:text="${face.key} + ' (' + ${face.value} + ')'">
+                        <a class="nav-link" th:href="@{/selectFacetValue(type=face,selectedFacetValue=${face.key})}" th:text="${face.key} + ' (' + ${face.value} + ')'">
                         </a>
                     </li>
                 </div>
@@ -84,10 +84,10 @@
                 </li>
                 <div id="datesFacet" class="collapse">
                     <li th:each="year: ${photoList.dates.facetEntries}" class="nav-item">
-                        <a class="nav-link" th:href="@{/home(type=year,filter=${year.title})}" th:text="${year.title} + ' (' + ${year.count} + ')'">
+                        <a class="nav-link" th:href="@{/selectFacetValue(type=year,selectedFacetValue=${year.title})}" th:text="${year.title} + ' (' + ${year.count} + ')'">
                         </a>
                         <li th:each="month: ${year.entry}" class="sub-nav-item">
-                            <a class="nav-link" th:href="@{/home(type=month,filter=${month.key})}" th:text="${month.key} + ' (' + ${month.value} + ')'">
+                            <a class="nav-link" th:href="@{/selectFacetValue(type=month,selectedFacetValue=${month.key})}" th:text="${month.key} + ' (' + ${month.value} + ')'">
                             </a>
                         </li>
                     </li>
