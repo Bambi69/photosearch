@@ -68,7 +68,7 @@
                 </li>
                 <div id="facesFacet" class="collapse">
                     <li th:each="face: ${photoList.faces.facetEntries}" class="nav-item">
-                        <a class="nav-link" th:href="@{/selectFacetValue(type=face,selectedFacetValue=${face.key})}" th:text="${face.key} + ' (' + ${face.value} + ')'">
+                        <a class="nav-link" th:href="@{/selectFacetValue(type=face_facet_search_type,selectedFacetValue=${face.key})}" th:text="${face.key} + ' (' + ${face.value} + ')'">
                         </a>
                     </li>
                 </div>
@@ -84,10 +84,10 @@
                 </li>
                 <div id="datesFacet" class="collapse">
                     <li th:each="year: ${photoList.dates.facetEntries}" class="nav-item">
-                        <a class="nav-link" th:href="@{/selectFacetValue(type=year,selectedFacetValue=${year.title})}" th:text="${year.title} + ' (' + ${year.count} + ')'">
+                        <a class="nav-link" th:href="@{/selectFacetValue(type=year_facet_search_type,selectedFacetValue=${year.title})}" th:text="${year.title} + ' (' + ${year.count} + ')'">
                         </a>
                         <li th:each="month: ${year.entry}" class="sub-nav-item">
-                            <a class="nav-link" th:href="@{/selectFacetValue(type=month,selectedFacetValue=${month.key})}" th:text="${month.key} + ' (' + ${month.value} + ')'">
+                            <a class="nav-link" th:href="@{/selectFacetValue(type=month_facet_search_type,selectedFacetValue=${month.key})}" th:text="${month.key} + ' (' + ${month.value} + ')'">
                             </a>
                         </li>
                     </li>

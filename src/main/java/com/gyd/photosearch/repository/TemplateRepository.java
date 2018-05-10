@@ -1,16 +1,25 @@
-package com.gyd.photosearch.service;
+package com.gyd.photosearch.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.exception.TechnicalException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateService<T> {
+public class TemplateRepository<T> {
+
+    @Autowired
+    protected Client esClient;
+
+    protected Logger logger = LogManager.getRootLogger();
 
     private Class< T > classType;
 

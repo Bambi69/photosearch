@@ -23,7 +23,6 @@ import java.util.List;
 @SessionAttributes("searchParametersSession")
 public class HomeController {
 
-
     @Value("${search.nbItemToDisplay}")
     private Integer nbItemsToDisplayByDefault;
 

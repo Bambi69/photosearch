@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Repository
-public class IndexationRepository extends ElasticsearchRepository {
+public class IndexationRepository extends TemplateRepository<Photo> {
 
     @Value("${elasticsearch.photoindex.name}")
     private String photoIndexName;
@@ -19,8 +19,6 @@ public class IndexationRepository extends ElasticsearchRepository {
     private String photoIndexType;
     @Value("${deleteIndexIfAlreadyExist}")
     private Boolean deleteIndexIfAlreadyExist;
-
-
 
     /**
      * index photos
