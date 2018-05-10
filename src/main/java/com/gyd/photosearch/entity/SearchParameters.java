@@ -7,22 +7,19 @@ import java.util.Map;
 public class SearchParameters {
 
     String textToSearch;
-    Map<String, List<String>> selectedFacetValues = new HashMap<>();
-    Integer nbItemsToDisplay = 30;
-
-    /**
-     * constructor by text
-     * @param textToSearch
-     */
-    public SearchParameters(String textToSearch) {
-        this.textToSearch = textToSearch;
-    }
+    Map<String, List<String>> selectedFacetValues;
+    Integer nbItemsToDisplay;
 
     /**
      * default constructor
+     * @param NB_ITEMS_TO_DISPLAY_BY_DEFAULT
      */
-    public SearchParameters() {
+    public SearchParameters(Integer NB_ITEMS_TO_DISPLAY_BY_DEFAULT) {
+        this.textToSearch = null;
+        this.selectedFacetValues = new HashMap<>();
+        this.nbItemsToDisplay = NB_ITEMS_TO_DISPLAY_BY_DEFAULT;
     }
+
 
     public String getTextToSearch() {
         return textToSearch;

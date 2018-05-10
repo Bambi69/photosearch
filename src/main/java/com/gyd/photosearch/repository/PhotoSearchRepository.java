@@ -4,6 +4,7 @@ import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -17,8 +18,11 @@ import java.util.Map;
 public class PhotoSearchRepository extends ElasticsearchRepository {
 
     /**
-     * list all photos from photo index
+     * list all photos from photo index which correspond to search parameters
+     *
+     * @param searchParameters
      * @return list of photos
+     * @throws TechnicalException
      */
     public SearchResponse findByCriteria(SearchParameters searchParameters) throws TechnicalException {
 
@@ -37,25 +41,31 @@ public class PhotoSearchRepository extends ElasticsearchRepository {
                                 .field("dateTimeOriginal")
                                 .dateHistogramInterval(DateHistogramInterval.MONTH)
                 )
-                .setFrom(0).setSize(100).setExplain(true)
+                .setFrom(0).setSize(searchParameters.getNbItemsToDisplay()).setExplain(true)
                 ;
+
+        // construct filter
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         // filter by text
         if (searchParameters != null && searchParameters.getTextToSearch() != null
                 && searchParameters.getTextToSearch().compareTo("") != 0) {
-            request.setQuery(QueryBuilders.queryStringQuery(searchParameters.getTextToSearch()));
+            boolQuery.must(QueryBuilders.queryStringQuery(searchParameters.getTextToSearch()));
         }
 
-        // filter by face
+        // filter by facets
         if (searchParameters != null && searchParameters.getSelectedFacetValues() != null) {
             for (Map.Entry<String, List<String>> entry : searchParameters.getSelectedFacetValues().entrySet()) {
                 Iterator<String> entryIt = entry.getValue().iterator();
                 while (entryIt.hasNext()) {
                     String facetValue = entryIt.next();
-                    request.setQuery(QueryBuilders.termQuery("faces.keyword", facetValue));
+                    boolQuery.must(QueryBuilders.termQuery("faces.keyword", facetValue));
                 }
             }
         }
+
+        // finally, we add the filter to the request
+        request.setQuery(boolQuery);
 
         return request.get();
     }
