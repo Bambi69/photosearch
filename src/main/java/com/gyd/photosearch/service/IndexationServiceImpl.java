@@ -198,7 +198,7 @@ public class IndexationServiceImpl implements IndexationService {
             c.setTime(originalDateTime);
             p.setDateTimeOriginal(DateUtil.convertDateToEsFormat(originalDateTime));
             p.setYearTimeOriginal(c.get(Calendar.YEAR));
-            p.setMonthTimeOriginal(c.get(Calendar.MONTH)+1);
+            p.setMonthTimeOriginal(DateUtil.getMonthFromDate(originalDateTime));
 
             // retrieve camera model
             String cameraModel = exifFD0Directory.getString(ExifIFD0Directory.TAG_MAKE);

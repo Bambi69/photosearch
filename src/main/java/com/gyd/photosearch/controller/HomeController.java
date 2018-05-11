@@ -16,15 +16,22 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @SessionAttributes("searchParametersSession")
 public class HomeController {
 
-    @Value("${search.nbItemToDisplay}")
-    private Integer nbItemsToDisplayByDefault;
+    @Value("${ui.facets.face.searchType}")
+    public String faceFacetSearchType;
+
+    @Value("${ui.facets.year.searchType}")
+    public String yearFacetSearchType;
+
+    @Value("${ui.facets.month.searchType}")
+    public String monthFacetSearchType;
+
+    @Value("${ui.search.nbItemToDisplay}")
+    public Integer nbItemsToDisplayByDefault;
 
     private Logger logger = LogManager.getRootLogger();
 
@@ -75,14 +82,9 @@ public class HomeController {
 
         logger.info("filterPhotos is called");
 
-        // update user session
-        if (searchParametersSession.getSelectedFacetValues().containsKey(type)) {
-            searchParametersSession.getSelectedFacetValues().get(type).add(selectedFacetValue);
-        } else {
-            List<String> values = new ArrayList<>();
-            values.add(selectedFacetValue);
-            searchParametersSession.getSelectedFacetValues().put(type, values);
-        }
+        // update user session from selected facet
+        searchParametersSession = photoSearchService
+                .rebuildSearchParametersFromSelectedFacet(searchParametersSession, type, selectedFacetValue);
 
         try {
             PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
@@ -159,5 +161,20 @@ public class HomeController {
     @ModelAttribute("searchParametersSession")
     public SearchParameters getSearchParametersSession (HttpServletRequest request) {
         return new SearchParameters(nbItemsToDisplayByDefault);
+    }
+
+    @ModelAttribute("faceFacetSearchType")
+    public String getFaceFacetSearchType (HttpServletRequest request) {
+        return faceFacetSearchType;
+    }
+
+    @ModelAttribute("yearFacetSearchType")
+    public String getYearFacetSearchType (HttpServletRequest request) {
+        return yearFacetSearchType;
+    }
+
+    @ModelAttribute("monthFacetSearchType")
+    public String getMonthFacetSearchType (HttpServletRequest request) {
+        return monthFacetSearchType;
     }
 }

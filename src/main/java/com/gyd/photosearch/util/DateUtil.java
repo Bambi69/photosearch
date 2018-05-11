@@ -2,11 +2,16 @@ package com.gyd.photosearch.util;
 
 import org.joda.time.DateTime;
 
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtil {
+
+    // DateFormatSymbols in default Locale
+    private static final DateFormatSymbols dfs = new DateFormatSymbols(Locale.FRENCH);
 
     private static String ES_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
@@ -31,14 +36,22 @@ public class DateUtil {
     }
 
     /**
-     * retrieve month from date
+     * retrieve complete month from date (ex: Janvier, Février, etc)
+     *
      * @param date
      * @return month in string format like "xx"
      */
     public static String getMonthFromDate(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return String.format("%02d", cal.get(Calendar.MONTH)+1);
+
+        // we retrieve complete month from date format symbols (ex : janvier)
+        String month = dfs.getMonths()[cal.get(Calendar.MONTH)];
+
+        // then, upper first letter
+        month = month.substring(0, 1).toUpperCase() + month.substring(1);
+
+        return month;
     }
 
     /**

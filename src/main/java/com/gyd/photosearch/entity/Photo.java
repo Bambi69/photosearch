@@ -12,7 +12,7 @@ public class Photo implements Serializable {
     private String thbName; // thumbnail generated file name
     private String dateTimeOriginal;
     private Integer yearTimeOriginal;
-    private Integer monthTimeOriginal;
+    private String monthTimeOriginal;
     private List<String> faces = new ArrayList<String>();
     private List<String> unknownKeywords= new ArrayList<String>();
     private Location location;
@@ -48,11 +48,11 @@ public class Photo implements Serializable {
         this.yearTimeOriginal = yearTimeOriginal;
     }
 
-    public Integer getMonthTimeOriginal() {
+    public String getMonthTimeOriginal() {
         return monthTimeOriginal;
     }
 
-    public void setMonthTimeOriginal(Integer monthTimeOriginal) {
+    public void setMonthTimeOriginal(String monthTimeOriginal) {
         this.monthTimeOriginal = monthTimeOriginal;
     }
 

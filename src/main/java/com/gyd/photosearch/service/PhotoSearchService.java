@@ -14,4 +14,13 @@ public interface PhotoSearchService {
      */
     PhotoList findByCriteria(SearchParameters searchParameters) throws Exception;
 
+    /**
+     * build search parameters object from selected facet
+     *
+     * @param searchParametersSession
+     * @param type selected facet type
+     * @param selectedFacetValue selected facet value
+     * @return
+     */
+    SearchParameters rebuildSearchParametersFromSelectedFacet(SearchParameters searchParametersSession, String type, String selectedFacetValue);
 }

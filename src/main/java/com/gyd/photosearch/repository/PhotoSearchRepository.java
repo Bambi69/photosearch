@@ -47,6 +47,15 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
     @Value("${ui.facets.datePrise.name}")
     private String datePriseFacetName;
 
+    @Value("${ui.facets.face.searchType}")
+    public String faceFacetSearchType;
+
+    @Value("${ui.facets.year.searchType}")
+    public String yearFacetSearchType;
+
+    @Value("${ui.facets.month.searchType}")
+    public String monthFacetSearchType;
+
     private static String FACE_AGGREGATION = "01";
     private static String MONTH_AGGREGATION = "02";
 
@@ -114,11 +123,11 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
                 while (entryIt.hasNext()) {
                     String facetValue = entryIt.next();
 
-                    if (entry.getKey().compareTo("face_facet_search_type")==0) {
+                    if (entry.getKey().compareTo(faceFacetSearchType)==0) {
                         result.must(QueryBuilders.termQuery(faceColumnName, facetValue));
-                    } else if (entry.getKey().compareTo("year_facet_search_type")==0) {
+                    } else if (entry.getKey().compareTo(yearFacetSearchType)==0) {
                         result.must(QueryBuilders.termQuery(yearColumnName, facetValue));
-                    } else if (entry.getKey().compareTo("month_facet_search_type")==0) {
+                    } else if (entry.getKey().compareTo(monthFacetSearchType)==0) {
                         result.must(QueryBuilders.termQuery(monthColumnName, facetValue));
                     }
                 }
@@ -129,7 +138,9 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
     }
 
     /**
-     * build result from search response
+     * build photo list from search response
+     * it mostly consists to convert elastic facet to hashmap
+     *
      * @param searchResponse
      * @return
      */
