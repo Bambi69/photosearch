@@ -8,6 +8,7 @@ public class PhotoList {
     SimpleFacet faces;
     HierarchicalFacet dates;
     List<Photo> photos = new ArrayList<>();
+    Long resultCount;
 
     /**
      * constructor from list
@@ -45,5 +46,13 @@ public class PhotoList {
 
     public void setDates(HierarchicalFacet dates) {
         this.dates = dates;
+    }
+
+    public Long getResultCount() {
+        return resultCount;
+    }
+
+    public void setResultCount(Long resultCount) {
+        this.resultCount = resultCount;
     }
 }

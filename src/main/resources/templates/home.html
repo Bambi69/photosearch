@@ -95,8 +95,15 @@
             </ul>
         </nav>
 
-        <!-- image gallery -->
+        <!-- image list part -->
         <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
+
+            <!-- informative message : result count vs results displayed -->
+            <div>
+                <h6 th:text="${photoList.resultCount+' résultats'}"/>
+            </div>
+
+            <!-- image list -->
             <section class="row text-center placeholders">
 
                 <div class="flexbin flexbin-margin" >
@@ -105,13 +112,19 @@
                     </a>
                 </div>
             </section>
+
+            <!-- button to display more results -->
+            <div th:if="${searchParametersSession.nbItemsToDisplay &lt; photoList.resultCount}">
+                <form name="displayMore" th:action="@{/displayMore}" method="post">
+                    <button class="btn btn-secondary btn-lg btn-block" type="submit">Plus de résultats</button>
+                </form>
+            </div>
+            &nbsp;
         </main>
     </div> <!-- row -->
 </div> <!-- container-fluid -->
 
-<form th:action="@{/greeting?name=Gael}" method="post">
-    <input type="submit" value="Greeting"/>
-</form>
+
 
 <!-- Placed at the end of the document so the pages load faster -->
 <script language="javascript">

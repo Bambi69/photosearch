@@ -209,6 +209,7 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
         result.setPhotos(convertSearchResponse(searchResponse));
         result.setFaces(facesFacet);
         result.setDates(datesFacet);
+        result.setResultCount(searchResponse.getHits().getTotalHits());
 
         // return it
         return result;

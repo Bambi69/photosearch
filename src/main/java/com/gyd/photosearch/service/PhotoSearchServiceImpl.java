@@ -29,10 +29,10 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
     public PhotoList findByCriteria(SearchParameters searchParameters) throws Exception {
 
         // query elasticsearch
-        PhotoList result = photoSearchRepository.findByCriteria(searchParameters);
+        PhotoList photoList = photoSearchRepository.findByCriteria(searchParameters);
 
         // return result
-        return result;
+        return photoList;
     }
 
     @Override

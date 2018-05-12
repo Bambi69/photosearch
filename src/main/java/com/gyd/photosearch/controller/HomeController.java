@@ -30,8 +30,11 @@ public class HomeController {
     @Value("${ui.facets.month.searchType}")
     public String monthFacetSearchType;
 
-    @Value("${ui.search.nbItemToDisplay}")
+    @Value("${ui.search.nbItemsToDisplay}")
     public Integer nbItemsToDisplayByDefault;
+
+    @Value("${ui.search.nbAdditionalItemsToDisplay}")
+    public Integer nbAdditionalItemsToDisplay;
 
     private Logger logger = LogManager.getRootLogger();
 
@@ -53,6 +56,7 @@ public class HomeController {
 
         // reinit user session
         sessionStatus.setComplete();
+
 
         try {
             PhotoList photoList = photoSearchService.findByCriteria(new SearchParameters(nbItemsToDisplayByDefault));
@@ -137,6 +141,31 @@ public class HomeController {
         try {
             PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
             model.addAttribute("photoList", photoList);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+
+        // update model from user session
+        setModelFromUserSession(searchParametersSession, model);
+
+        return "home";
+    }
+
+    @RequestMapping("/displayMore")
+    public String displayMore(
+            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
+            Model model) {
+
+        logger.info("displayMore is called");
+
+        // set search parameters to display more items
+        searchParametersSession.setNbItemsToDisplay(searchParametersSession.getNbItemsToDisplay()+nbAdditionalItemsToDisplay);
+
+        try {
+            PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
+            model.addAttribute("photoList", photoList);
+
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();
