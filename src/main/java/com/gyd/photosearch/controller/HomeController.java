@@ -30,11 +30,8 @@ public class HomeController {
     @Value("${ui.facets.month.searchType}")
     public String monthFacetSearchType;
 
-    @Value("${ui.search.nbItemsToDisplay}")
-    public Integer nbItemsToDisplayByDefault;
-
-    @Value("${ui.search.nbAdditionalItemsToDisplay}")
-    public Integer nbAdditionalItemsToDisplay;
+    @Value("${ui.search.nbItemsByPage}")
+    public Integer nbItemsByPage;
 
     private Logger logger = LogManager.getRootLogger();
 
@@ -57,9 +54,8 @@ public class HomeController {
         // reinit user session
         sessionStatus.setComplete();
 
-
         try {
-            PhotoList photoList = photoSearchService.findByCriteria(new SearchParameters(nbItemsToDisplayByDefault));
+            PhotoList photoList = photoSearchService.findByCriteria(new SearchParameters(nbItemsByPage));
             model.addAttribute("photoList", photoList);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -152,15 +148,18 @@ public class HomeController {
         return "home";
     }
 
-    @RequestMapping("/displayMore")
-    public String displayMore(
+    @RequestMapping("/switchPage")
+    public String switchPage(
             @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
+            @RequestParam(value="action", required=false) String action,
+            @RequestParam(value="pageNumber", required=false) Integer pageNumber,
             Model model) {
 
-        logger.info("displayMore is called");
+        logger.info("switchPage is called");
 
-        // set search parameters to display more items
-        searchParametersSession.setNbItemsToDisplay(searchParametersSession.getNbItemsToDisplay()+nbAdditionalItemsToDisplay);
+        // set search parameters to take into account pagination action
+        searchParametersSession = photoSearchService.rebuildSearchParametersForSwitchPageAction(
+                searchParametersSession, action, pageNumber);
 
         try {
             PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
@@ -189,7 +188,7 @@ public class HomeController {
 
     @ModelAttribute("searchParametersSession")
     public SearchParameters getSearchParametersSession (HttpServletRequest request) {
-        return new SearchParameters(nbItemsToDisplayByDefault);
+        return new SearchParameters(nbItemsByPage);
     }
 
     @ModelAttribute("faceFacetSearchType")

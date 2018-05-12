@@ -13,8 +13,8 @@ import java.util.List;
 @Service
 public class PhotoSearchServiceImpl implements PhotoSearchService {
 
-    @Value("${ui.facets.face.searchType}")
-    public String faceFacetSearchType;
+    @Value("${ui.search.nbItemsByPage}")
+    public Integer nbItemsByPage;
 
     @Value("${ui.facets.year.searchType}")
     public String yearFacetSearchType;
@@ -30,6 +30,21 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
 
         // query elasticsearch
         PhotoList photoList = photoSearchRepository.findByCriteria(searchParameters);
+
+        // update page list in search parameters
+        List<Integer> pageList = new ArrayList<>();
+
+        // calculate nb of page
+        Integer nbOfPage = Math.floorDiv(photoList.getResultCount().intValue(), nbItemsByPage);
+        if (nbOfPage * nbItemsByPage != photoList.getResultCount()) { // use modulo to check if rest != 0
+            nbOfPage++;
+        }
+
+        // build page list
+        for (int i = 0; i < nbOfPage; i++) {
+            pageList.add(i+1);
+        }
+        photoList.setPages(pageList);
 
         // return result
         return photoList;
@@ -50,7 +65,7 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
                     selectedFacetValue.split("_")[0]);
 
             // then, we apply this method for month value
-            // note that, at second call, split method length will be 1
+            // /!\ NOTE THAT, at second call, split method length will be 1 /!\
             searchParameters = rebuildSearchParametersFromSelectedFacet(
                     searchParameters,
                     monthFacetSearchType,
@@ -68,6 +83,36 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
                 values.add(selectedFacetValue);
                 searchParameters.getSelectedFacetValues().put(type, values);
             }
+        }
+
+        // update pagination parameters
+        searchParameters.setFirstItemId(0);
+        searchParameters.setActivePage(1);
+
+        return searchParameters;
+    }
+
+    @Override
+    public SearchParameters rebuildSearchParametersForSwitchPageAction(
+            SearchParameters searchParameters, String action, Integer requestedPageNumber) {
+
+        // if previous or next action
+        if (action != null && action.compareTo("") !=0) {
+            switch (action) {
+                case "next":
+                    searchParameters.setFirstItemId(searchParameters.getFirstItemId() + nbItemsByPage);
+                    searchParameters.setActivePage(searchParameters.getActivePage()+1);
+                    break;
+                case "previous":
+                    searchParameters.setFirstItemId(searchParameters.getFirstItemId() - nbItemsByPage);
+                    searchParameters.setActivePage(searchParameters.getActivePage()-1);
+                    break;
+            }
+
+        // if specific nb of page is selected
+        } else {
+            searchParameters.setFirstItemId((requestedPageNumber-1) * nbItemsByPage);
+            searchParameters.setActivePage(requestedPageNumber);
         }
 
         return searchParameters;

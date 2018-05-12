@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Hello Gaël !</title>
+    <title>Mes photos</title>
 
     <!-- Required meta tags -->
     <meta charset="utf-8" />
@@ -22,19 +22,16 @@
 <!-- navigation bar -->
 <header>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Mes photos</a>
+        <a class="navbar-brand" th:href="@{/}">Accueil</a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navigationBar" aria-controls="navigationBar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navigationBar">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" th:href="@{/}">Accueil <span class="sr-only">(current)</span></a>
-                </li>
                 <li class="nav-item">
                     <form name="indexation" th:action="@{/indexation}" method="post" >
-                        <a class="nav-link" href="#" onclick="Indexation()" >Exécuter indexation</a>
+                        <a class="nav-link" href="#" onclick="Indexation()" >Administration</a>
                     </form>
                 </li>
                 <li class="nav-item">
@@ -113,13 +110,30 @@
                 </div>
             </section>
 
-            <!-- button to display more results -->
-            <div th:if="${searchParametersSession.nbItemsToDisplay &lt; photoList.resultCount}">
-                <form name="displayMore" th:action="@{/displayMore}" method="post">
-                    <button class="btn btn-secondary btn-lg btn-block" type="submit">Plus de résultats</button>
-                </form>
-            </div>
-            &nbsp;
+            <!-- pagination -->
+            <nav>
+                <ul class="pagination">
+
+                    <!-- previous button -->
+                    <div th:if="${searchParametersSession.activePage &gt; 1}">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{/switchPage(action=previous)}" >Précédent</a>
+                        </li>
+                    </div>
+
+                    <!-- page buttons -->
+                        <li th:if="${photoList.pages.size() &gt; 1}" th:each="pageNum: ${photoList.pages}" class="page-item">
+                            <a class="page-link" th:href="@{/switchPage(pageNumber=${pageNum})}" th:text="${pageNum}" />
+                        </li>
+
+                    <!-- next button -->
+                    <div th:if="${searchParametersSession.activePage &lt; photoList.pages.size()}">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{/switchPage(action=next)}" >Suivant</a>
+                        </li>
+                    </div>
+                </ul>
+            </nav>
         </main>
     </div> <!-- row -->
 </div> <!-- container-fluid -->

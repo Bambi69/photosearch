@@ -83,7 +83,11 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
                                 .field(dateTimeOriginalColumnName)
                                 .dateHistogramInterval(DateHistogramInterval.MONTH)
                 )
-                .setFrom(0).setSize(searchParameters.getNbItemsToDisplay()).setExplain(true)
+                // pagination
+                .setFrom(searchParameters.getFirstItemId())
+                .setSize(searchParameters.getNbItemsByPage())
+                // ???
+                .setExplain(true)
                 ;
 
         // construct filter

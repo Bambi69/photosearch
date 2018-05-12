@@ -9,6 +9,7 @@ public class PhotoList {
     HierarchicalFacet dates;
     List<Photo> photos = new ArrayList<>();
     Long resultCount;
+    List<Integer> pages = new ArrayList<>(); // used for pagination
 
     /**
      * constructor from list
@@ -54,5 +55,13 @@ public class PhotoList {
 
     public void setResultCount(Long resultCount) {
         this.resultCount = resultCount;
+    }
+
+    public List<Integer> getPages() {
+        return pages;
+    }
+
+    public void setPages(List<Integer> pages) {
+        this.pages = pages;
     }
 }

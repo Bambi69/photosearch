@@ -8,16 +8,22 @@ public class SearchParameters {
 
     String textToSearch;
     Map<String, List<String>> selectedFacetValues;
-    Integer nbItemsToDisplay;
+
+    // pagination
+    Integer firstItemId; // start by 0
+    Integer nbItemsByPage;
+    Integer activePage;
 
     /**
      * default constructor
-     * @param NB_ITEMS_TO_DISPLAY_BY_DEFAULT
+     * @param nbItemsByPage
      */
-    public SearchParameters(Integer NB_ITEMS_TO_DISPLAY_BY_DEFAULT) {
+    public SearchParameters(Integer nbItemsByPage) {
         this.textToSearch = null;
         this.selectedFacetValues = new HashMap<>();
-        this.nbItemsToDisplay = NB_ITEMS_TO_DISPLAY_BY_DEFAULT;
+        this.firstItemId = 0;
+        this.nbItemsByPage = nbItemsByPage;
+        this.activePage = 1;
     }
 
 
@@ -37,11 +43,27 @@ public class SearchParameters {
         this.selectedFacetValues = selectedFacetValues;
     }
 
-    public Integer getNbItemsToDisplay() {
-        return nbItemsToDisplay;
+    public Integer getFirstItemId() {
+        return firstItemId;
     }
 
-    public void setNbItemsToDisplay(Integer nbItemsToDisplay) {
-        this.nbItemsToDisplay = nbItemsToDisplay;
+    public void setFirstItemId(Integer firstItemId) {
+        this.firstItemId = firstItemId;
+    }
+
+    public Integer getActivePage() {
+        return activePage;
+    }
+
+    public void setActivePage(Integer activePage) {
+        this.activePage = activePage;
+    }
+
+    public Integer getNbItemsByPage() {
+        return nbItemsByPage;
+    }
+
+    public void setNbItemsByPage(Integer nbItemsByPage) {
+        this.nbItemsByPage = nbItemsByPage;
     }
 }
