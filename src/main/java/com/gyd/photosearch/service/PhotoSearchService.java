@@ -33,4 +33,14 @@ public interface PhotoSearchService {
      * @return
      */
     SearchParameters rebuildSearchParametersForSwitchPageAction(SearchParameters searchParametersSession, String action, Integer requestedPageNumber);
+
+    /**
+     * build search parameters object when user delete any filter
+     *
+     * @param searchParametersSession
+     * @param type
+     * @param selectedFacetValue
+     * @return
+     */
+    SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParametersSession, String type, String selectedFacetValue);
 }

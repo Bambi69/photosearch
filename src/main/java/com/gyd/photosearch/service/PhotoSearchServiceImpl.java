@@ -75,7 +75,11 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
 
             // if there are already filters applied for this facet type
             if (searchParameters.getSelectedFacetValues().containsKey(type)) {
-                searchParameters.getSelectedFacetValues().get(type).add(selectedFacetValue);
+
+                // check if this value is not already added
+                if(!searchParameters.getSelectedFacetValues().get(type).contains(selectedFacetValue)){
+                    searchParameters.getSelectedFacetValues().get(type).add(selectedFacetValue);
+                }
 
             // else
             } else {
@@ -90,6 +94,12 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
         searchParameters.setActivePage(1);
 
         return searchParameters;
+    }
+
+    @Override
+    public SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParametersSession, String type, String selectedFacetValue) {
+        searchParametersSession.getSelectedFacetValues().get(type).remove(selectedFacetValue);
+        return searchParametersSession;
     }
 
     @Override

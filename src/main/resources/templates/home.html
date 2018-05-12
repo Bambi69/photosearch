@@ -65,7 +65,7 @@
                 </li>
                 <div id="facesFacet" class="collapse">
                     <li th:each="face: ${photoList.faces.facetEntries}" class="nav-item">
-                        <a class="nav-link" th:href="@{/selectFacetValue(type=${faceFacetSearchType},selectedFacetValue=${face.key})}" th:text="${face.key} + ' (' + ${face.value} + ')'">
+                        <a class="nav-link" th:href="@{/filterByFacetValue(type=${faceFacetSearchType},selectedFacetValue=${face.key},action=select)}" th:text="${face.key} + ' (' + ${face.value} + ')'">
                         </a>
                     </li>
                 </div>
@@ -81,10 +81,10 @@
                 </li>
                 <div id="datesFacet" class="collapse">
                     <li th:each="year: ${photoList.dates.facetEntries}" class="nav-item">
-                        <a class="nav-link" th:href="@{/selectFacetValue(type=${yearFacetSearchType},selectedFacetValue=${year.title})}" th:text="${year.title} + ' (' + ${year.count} + ')'">
+                        <a class="nav-link" th:href="@{/filterByFacetValue(type=${yearFacetSearchType},selectedFacetValue=${year.title},action=select)}" th:text="${year.title} + ' (' + ${year.count} + ')'">
                         </a>
                         <li th:each="month: ${year.entry}" class="sub-nav-item">
-                            <a class="nav-link" th:href="@{/selectFacetValue(type=${monthFacetSearchType},selectedFacetValue=${year.title+'_'+month.key})}" th:text="${month.key} + ' (' + ${month.value} + ')'">
+                            <a class="nav-link" th:href="@{/filterByFacetValue(type=${monthFacetSearchType},selectedFacetValue=${year.title+'_'+month.key},action=select)}" th:text="${month.key} + ' (' + ${month.value} + ')'">
                             </a>
                         </li>
                     </li>
@@ -99,6 +99,17 @@
             <div>
                 <h6 th:text="${photoList.resultCount+' résultats'}"/>
             </div>
+
+            <!-- applied filters -->
+            <nav>
+            <ul class="pagination">
+                <li th:each="selectedFacet: ${searchParametersSession.selectedFacetValues}">
+                    <li th:each="selectedFacetValue: ${selectedFacet.value}" class="page-item" >
+                        <a class="page-link" th:href="@{/filterByFacetValue(type=${selectedFacet.key},selectedFacetValue=${selectedFacetValue},action=unselect)}" th:text="${selectedFacetValue}" />
+                    </li>
+                </li>
+            </ul>
+            </nav>
 
             <!-- image list -->
             <section class="row text-center placeholders">
@@ -122,9 +133,9 @@
                     </div>
 
                     <!-- page buttons -->
-                        <li th:if="${photoList.pages.size() &gt; 1}" th:each="pageNum: ${photoList.pages}" class="page-item">
-                            <a class="page-link" th:href="@{/switchPage(pageNumber=${pageNum})}" th:text="${pageNum}" />
-                        </li>
+                    <li th:if="${photoList.pages.size() &gt; 1}" th:each="pageNum: ${photoList.pages}" class="page-item">
+                        <a class="page-link" th:href="@{/switchPage(pageNumber=${pageNum})}" th:text="${pageNum}" />
+                    </li>
 
                     <!-- next button -->
                     <div th:if="${searchParametersSession.activePage &lt; photoList.pages.size()}">

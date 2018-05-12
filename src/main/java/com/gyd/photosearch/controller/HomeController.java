@@ -65,7 +65,7 @@ public class HomeController {
     }
 
     /**
-     * called when user select a value facet to filter results
+     * called when user select or unselect a value facet
      *
      * @param searchParametersSession
      * @param type
@@ -73,18 +73,24 @@ public class HomeController {
      * @param model
      * @return
      */
-    @RequestMapping("/selectFacetValue")
-    public String filterPhotos(
+    @RequestMapping("/filterByFacetValue")
+    public String filterByFacetValue(
             @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
             @RequestParam(value="type", required=true) String type,
             @RequestParam(value="selectedFacetValue", required=true) String selectedFacetValue,
+            @RequestParam(value="action", required=true) String action,
             Model model) {
 
         logger.info("filterPhotos is called");
 
         // update user session from selected facet
-        searchParametersSession = photoSearchService
-                .rebuildSearchParametersFromSelectedFacet(searchParametersSession, type, selectedFacetValue);
+        if (action != null && action.compareTo("select") == 0) {
+            searchParametersSession = photoSearchService
+                    .rebuildSearchParametersFromSelectedFacet(searchParametersSession, type, selectedFacetValue);
+        } else {
+            searchParametersSession = photoSearchService
+                    .rebuildSearchParametersFromUnselectedFacet(searchParametersSession, type, selectedFacetValue);
+        }
 
         try {
             PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
