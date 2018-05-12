@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <title>Mes photos</title>
 
@@ -29,7 +29,7 @@
 
         <div class="collapse navbar-collapse" id="navigationBar">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
+                <li sec:authorize="hasRole('ROLE_ADMIN')" class="nav-item">
                     <form name="indexation" th:action="@{/indexation}" method="post" >
                         <a class="nav-link" href="#" onclick="Indexation()" >Administration</a>
                     </form>
