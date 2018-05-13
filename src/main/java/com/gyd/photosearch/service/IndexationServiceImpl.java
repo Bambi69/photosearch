@@ -223,7 +223,9 @@ public class IndexationServiceImpl implements IndexationService {
 
         // READ GPS METADATA
         GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
-        if (gpsDirectory != null) {
+        if (gpsDirectory != null
+                && gpsDirectory.getRationalArray(GpsDirectory.TAG_LONGITUDE) != null
+                && gpsDirectory.getRationalArray(GpsDirectory.TAG_LATITUDE) != null) {
 
             // retrieve GPS coordinates
             p.setLocation(new Location());
