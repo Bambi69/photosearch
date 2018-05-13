@@ -38,19 +38,32 @@
         <div class="container">
             <div class="row">
 
-                <!-- messages -->
-                <div th:if="${param.error}">
-                    Identifiant et mot de passe incorrects.
-                </div>
-                <div th:if="${param.logout}">
-                    Vous avez été déconnecté.
-                </div>
-
                 <div class="col-md-4 col-md-offset-4">
+
+                    <br/>
+
+                    <!-- messages -->
+                    <div th:if="${param.error}">
+                        <div class="alert alert-warning" role="alert">
+                            Identifiant et mot de passe incorrects.
+                        </div>
+                        <br/>
+                        <br/>
+                    </div>
+                    <div th:if="${param.logout}">
+                        <div class="alert alert-warning" role="alert">
+                            Vous avez été déconnecté.
+                        </div>
+                        <br/>
+                        <br/>
+                    </div>
+
                     <div class="login-panel panel panel-default">
+
                         <div class="panel-heading">
                             <h3 class="panel-title">Veuillez vous connecter</h3>
                         </div>
+
                         <div class="panel-body">
                             <form role="form" th:action="@{/login}" method="post" class="form-signin">
                                 <fieldset>
