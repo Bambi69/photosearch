@@ -47,12 +47,17 @@ public class HomeController {
      * @return
      */
     @RequestMapping("/")
-    public String listAllPhotos(Model model, SessionStatus sessionStatus) {
+    public String listAllPhotos(
+            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,Model model, SessionStatus sessionStatus) {
 
         logger.info("listAllPhotos is called");
 
         // reinit user session
         sessionStatus.setComplete();
+
+        // reinit search parameters
+        searchParametersSession = new SearchParameters(nbItemsByPage);
+        model.addAttribute("searchParametersSession", searchParametersSession);
 
         try {
             PhotoList photoList = photoSearchService.findByCriteria(new SearchParameters(nbItemsByPage));
@@ -81,7 +86,7 @@ public class HomeController {
             @RequestParam(value="action", required=true) String action,
             Model model) {
 
-        logger.info("filterPhotos is called");
+        logger.info("filterByFacetValue is called");
 
         // update user session from selected facet
         if (action != null && action.compareTo("select") == 0) {

@@ -98,7 +98,12 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
 
     @Override
     public SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParametersSession, String type, String selectedFacetValue) {
-        searchParametersSession.getSelectedFacetValues().get(type).remove(selectedFacetValue);
+        if (searchParametersSession.getSelectedFacetValues().get(type) != null) {
+            searchParametersSession.getSelectedFacetValues().get(type).remove(selectedFacetValue);
+            if (searchParametersSession.getSelectedFacetValues().get(type).size() == 0) {
+                searchParametersSession.getSelectedFacetValues().remove(type);
+            }
+        }
         return searchParametersSession;
     }
 
