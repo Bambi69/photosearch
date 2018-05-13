@@ -13,16 +13,16 @@
         <title>Connexion</title>
 
         <!-- Bootstrap Core CSS -->
-        <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 
         <!-- MetisMenu CSS -->
-        <link href="../vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+        <link href="vendor/metisMenu/metisMenu.min.css" rel="stylesheet"/>
 
         <!-- Custom CSS -->
-        <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+        <link href="dist/css/sb-admin-2.css" rel="stylesheet"/>
 
         <!-- Custom Fonts -->
-        <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -49,24 +49,21 @@
                 <div class="col-md-4 col-md-offset-4">
                     <div class="login-panel panel panel-default">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Please Sign In</h3>
+                            <h3 class="panel-title">Veuillez vous connecter</h3>
                         </div>
                         <div class="panel-body">
-                            <form role="form">
+                            <form role="form" th:action="@{/login}" method="post" class="form-signin">
                                 <fieldset>
+
                                     <div class="form-group">
-                                        <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus>
+                                        <input class="form-control" placeholder="Identifiant" name="username" type="text" required="true" autofocus="true"/>
                                     </div>
+
                                     <div class="form-group">
-                                        <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                                        <input class="form-control" placeholder="Mot de passe" name="password" type="password" required="true"/>
                                     </div>
-                                    <div class="checkbox">
-                                        <label>
-                                            <input name="remember" type="checkbox" value="Remember Me">Remember Me
-                                        </label>
-                                    </div>
-                                    <!-- Change this to a button or input when using this as a form -->
-                                    <a href="index.html" class="btn btn-lg btn-success btn-block">Login</a>
+
+                                    <button class="btn btn-lg btn-success btn-block" type="submit">Se connecter</button>
                                 </fieldset>
                             </form>
                         </div>
@@ -75,43 +72,17 @@
             </div>
         </div>
 
-
-
-        <div class="container">
-
-
-
-            <!-- login form -->
-            <form th:action="@{/login}" method="post" class="form-signin">
-
-                <h2 class="form-signin-heading">Veuillez vous connecter</h2>
-
-                <label for="inputLogin" class="sr-only">Identifiant</label>
-                <input type="text" id="inputLogin" name="username" class="form-control" placeholder="Identifiant" required="true" autofocus="true"/>
-
-                <label for="inputPassword" class="sr-only">Mot de passe</label>
-                <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Mot de passe" required="true" />
-
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" value="remember-me" /> Se souvenir de moi
-                    </label>
-                </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
-            </form>
-        </div> <!-- /container -->
-
         <!-- jQuery -->
-        <script src="../vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/jquery/jquery.min.js"></script>
 
         <!-- Bootstrap Core JavaScript -->
-        <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
         <!-- Metis Menu Plugin JavaScript -->
-        <script src="../vendor/metisMenu/metisMenu.min.js"></script>
+        <script src="vendor/metisMenu/metisMenu.min.js"></script>
 
         <!-- Custom Theme JavaScript -->
-        <script src="../dist/js/sb-admin-2.js"></script>
+        <script src="dist/js/sb-admin-2.js"></script>
 
     </body>
 </html>
