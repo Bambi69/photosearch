@@ -28,11 +28,10 @@ public interface PhotoSearchService {
      * build search parameters after any pagination action
      *
      * @param searchParametersSession
-     * @param action
      * @param requestedPageNumber
      * @return
      */
-    SearchParameters rebuildSearchParametersForSwitchPageAction(SearchParameters searchParametersSession, String action, Integer requestedPageNumber);
+    SearchParameters rebuildSearchParametersForSwitchPageAction(SearchParameters searchParametersSession, Integer requestedPageNumber);
 
     /**
      * build search parameters object when user delete any filter

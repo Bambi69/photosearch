@@ -159,10 +159,17 @@ public class HomeController {
         return "home";
     }
 
+    /**
+     * when user selects a specific page number in pagination component
+     *
+     * @param searchParametersSession
+     * @param pageNumber
+     * @param model
+     * @return
+     */
     @RequestMapping("/switchPage")
     public String switchPage(
             @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
-            @RequestParam(value="action", required=false) String action,
             @RequestParam(value="pageNumber", required=false) Integer pageNumber,
             Model model) {
 
@@ -170,7 +177,7 @@ public class HomeController {
 
         // set search parameters to take into account pagination action
         searchParametersSession = photoSearchService.rebuildSearchParametersForSwitchPageAction(
-                searchParametersSession, action, pageNumber);
+                searchParametersSession, pageNumber);
 
         try {
             PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);

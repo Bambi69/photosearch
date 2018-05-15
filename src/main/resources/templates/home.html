@@ -63,7 +63,7 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                     </a>
-                    <ul class="dropdown-menu dropdown-user">
+                    <ul class="dropdown-menu">
 
                         <!-- administration -->
                         <li sec:authorize="hasRole('ROLE_ADMIN')">
@@ -173,7 +173,7 @@
 
                             <!-- previous button -->
                             <li class="page-item" th:if="${searchParametersSession.activePage &gt; 1}">
-                                <a class="page-link" th:href="@{/switchPage(action=previous)}" >Précédent</a>
+                                <a class="page-link" th:href="@{/switchPage(pageNumber=${searchParametersSession.activePage-1})}" >Précédent</a>
                             </li>
 
                             <!-- page buttons -->
@@ -183,7 +183,7 @@
 
                             <!-- next button -->
                             <li class="page-item" th:if="${searchParametersSession.activePage &lt; photoList.pages.size()}">
-                                <a class="page-link" th:href="@{/switchPage(action=next)}" >Suivant</a>
+                                <a class="page-link" th:href="@{/switchPage(pageNumber=${searchParametersSession.activePage+1})}" >Suivant</a>
                             </li>
                         </ul>
                     </div>

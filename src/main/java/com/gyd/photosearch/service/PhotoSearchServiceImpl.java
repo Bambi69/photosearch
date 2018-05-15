@@ -89,46 +89,45 @@ public class PhotoSearchServiceImpl implements PhotoSearchService {
             }
         }
 
-        // update pagination parameters
+        // reinit pagination parameters
+        searchParameters = reinitPaginationParameters(searchParameters);
+
+        return searchParameters;
+    }
+
+    /**
+     * reinitialize pagination parameters
+     *
+     * @param searchParameters
+     * @return
+     */
+    private SearchParameters reinitPaginationParameters(SearchParameters searchParameters) {
         searchParameters.setFirstItemId(0);
         searchParameters.setActivePage(1);
+        return searchParameters;
+    }
+
+    @Override
+    public SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParameters, String type, String selectedFacetValue) {
+        if (searchParameters.getSelectedFacetValues().get(type) != null) {
+            searchParameters.getSelectedFacetValues().get(type).remove(selectedFacetValue);
+            if (searchParameters.getSelectedFacetValues().get(type).size() == 0) {
+                searchParameters.getSelectedFacetValues().remove(type);
+            }
+        }
+
+        // reinit pagination parameters
+        searchParameters = reinitPaginationParameters(searchParameters);
 
         return searchParameters;
     }
 
     @Override
-    public SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParametersSession, String type, String selectedFacetValue) {
-        if (searchParametersSession.getSelectedFacetValues().get(type) != null) {
-            searchParametersSession.getSelectedFacetValues().get(type).remove(selectedFacetValue);
-            if (searchParametersSession.getSelectedFacetValues().get(type).size() == 0) {
-                searchParametersSession.getSelectedFacetValues().remove(type);
-            }
-        }
-        return searchParametersSession;
-    }
-
-    @Override
     public SearchParameters rebuildSearchParametersForSwitchPageAction(
-            SearchParameters searchParameters, String action, Integer requestedPageNumber) {
+            SearchParameters searchParameters, Integer requestedPageNumber) {
 
-        // if previous or next action
-        if (action != null && action.compareTo("") !=0) {
-            switch (action) {
-                case "next":
-                    searchParameters.setFirstItemId(searchParameters.getFirstItemId() + nbItemsByPage);
-                    searchParameters.setActivePage(searchParameters.getActivePage()+1);
-                    break;
-                case "previous":
-                    searchParameters.setFirstItemId(searchParameters.getFirstItemId() - nbItemsByPage);
-                    searchParameters.setActivePage(searchParameters.getActivePage()-1);
-                    break;
-            }
-
-        // if specific nb of page is selected
-        } else {
-            searchParameters.setFirstItemId((requestedPageNumber-1) * nbItemsByPage);
-            searchParameters.setActivePage(requestedPageNumber);
-        }
+        searchParameters.setFirstItemId((requestedPageNumber-1) * nbItemsByPage);
+        searchParameters.setActivePage(requestedPageNumber);
 
         return searchParameters;
     }
