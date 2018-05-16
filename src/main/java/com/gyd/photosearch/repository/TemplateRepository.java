@@ -1,7 +1,6 @@
 package com.gyd.photosearch.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +20,7 @@ public class TemplateRepository<T> {
 
     protected Logger logger = LogManager.getRootLogger();
 
-    private Class< T > classType;
+    private Class<T> classType;
 
     /**
      * convert elasticsearch search response to list of results
@@ -30,20 +29,37 @@ public class TemplateRepository<T> {
      * @throws TechnicalException
      */
     protected List<T> convertSearchResponse(SearchResponse response) throws TechnicalException {
-        ObjectMapper mapper = new ObjectMapper();
         SearchHit[] hits = response.getHits().getHits();
         List<T> results = new ArrayList<>();
         for(SearchHit hit : hits){
             String sourceAsString = hit.getSourceAsString();
-            if (sourceAsString != null) {
-                try {
-                    results.add((T) mapper.readValue(sourceAsString, Photo.class));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw new TechnicalException(this.getClass().getName() + " / IOException / " + e.getMessage());
-                }
-            }
+            results.add(convertSourceAsStringToBean(sourceAsString));
         }
         return results;
+    }
+
+    /**
+     * convert elasticsearch "sourceAsString" to bean
+     * @param sourceAsString
+     * @return
+     * @throws TechnicalException
+     */
+    protected T convertSourceAsStringToBean(String sourceAsString) throws TechnicalException {
+        T result = null;
+        if (sourceAsString != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                result = (T) mapper.readValue(sourceAsString, classType);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+                throw new TechnicalException(this.getClass().getName() + " / IOException / " + e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    protected void setClassType(Class<T> classType) {
+        this.classType = classType;
     }
 }

@@ -44,8 +44,8 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
     @Value("${ui.facets.face.name}")
     private String faceFacetName;
 
-    @Value("${ui.facets.datePrise.name}")
-    private String datePriseFacetName;
+    @Value("${ui.facets.datePrise.parMois.name}")
+    private String datePriseParMoisFacetName;
 
     @Value("${ui.facets.face.searchType}")
     public String faceFacetSearchType;
@@ -58,6 +58,10 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
 
     private static String FACE_AGGREGATION = "01";
     private static String MONTH_AGGREGATION = "02";
+
+    public PhotoSearchRepository() {
+        setClassType(Photo.class);
+    }
 
     /**
      * list all photos from photo index which correspond to search parameters
@@ -168,7 +172,7 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
         // retrieve histogram facets from response
         InternalDateHistogram internalDateHistogram = searchResponse.getAggregations().get(MONTH_AGGREGATION);
         HierarchicalFacet datesFacet = new HierarchicalFacet();
-        datesFacet.setName(datePriseFacetName);
+        datesFacet.setName(datePriseParMoisFacetName);
         String previousYear = null;
         HierarchicalFacetEntry yearFacetEntry = new HierarchicalFacetEntry();
 

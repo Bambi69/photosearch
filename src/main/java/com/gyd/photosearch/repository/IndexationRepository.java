@@ -20,6 +20,10 @@ public class IndexationRepository extends TemplateRepository<Photo> {
     @Value("${deleteIndexIfAlreadyExist}")
     private Boolean deleteIndexIfAlreadyExist;
 
+    public IndexationRepository() {
+        setClassType(Photo.class);
+    }
+
     /**
      * index photos
      */
@@ -74,9 +78,6 @@ public class IndexationRepository extends TemplateRepository<Photo> {
                         "  }";
 
         logger.info("trying to create index...");
-        logger.info(photoIndexName);
-        logger.info(photoIndexType);
-
         esClient.admin().indices().prepareCreate(photoIndexName)
                 .addMapping(photoIndexType,locationType, XContentType.JSON)
                 .get();

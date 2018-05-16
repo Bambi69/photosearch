@@ -11,6 +11,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Value("${path.photos.thumbnail.processed}")
     private String thumbnailPhotos;
+
     @Value("${path.photos.hd.processed}")
     private String hdPhotos;
 
