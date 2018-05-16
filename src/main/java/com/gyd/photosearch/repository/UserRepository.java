@@ -63,7 +63,16 @@ public class UserRepository extends TemplateRepository<User> {
      * @return
      */
     public User findByUsername(String username) throws TechnicalException {
-        GetResponse response = esClient.prepareGet(userIndexName, userIndexType, username).get();
-        return convertSourceAsStringToBean(response.getSourceAsString());
+        try {
+            GetResponse response = esClient.prepareGet(userIndexName, userIndexType, username).get();
+            return convertSourceAsStringToBean(response.getSourceAsString());
+
+        // if index does not exist, return null. Else, in memory authentication cannot succeed
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            return null;
+        }
+
     }
 }
