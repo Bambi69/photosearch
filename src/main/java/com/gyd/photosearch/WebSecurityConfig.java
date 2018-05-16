@@ -2,6 +2,7 @@ package com.gyd.photosearch;
 
 import com.gyd.photosearch.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Value("${admin.userName}")
+    private String adminUserName;
 
     @Autowired
     private UserDetailsServiceImpl userService;
@@ -37,6 +41,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userService);
         auth
                 .inMemoryAuthentication()
-                .withUser("admin").password("vlmkq@&123").roles("ADMIN");
+                .withUser(adminUserName).password("vlmkq@&123").roles("ADMIN");
     }
 }

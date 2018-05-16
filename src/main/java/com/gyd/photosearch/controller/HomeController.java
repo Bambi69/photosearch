@@ -25,6 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 @SessionAttributes("searchParametersSession")
 public class HomeController {
 
+    @Value("${admin.userName}")
+    private String adminUserName;
+
     @Value("${ui.facets.face.searchType}")
     public String faceFacetSearchType;
 
@@ -198,11 +201,13 @@ public class HomeController {
             throw new Exception("user is not authenticated");
         }
 
-        // set user role
+        // set user role (admin user is not persisted)
         searchParameters.setSearchRestrictionsToApply(userService.isUserRole(authentication));
 
         // set search restrictions associated to the user
-        searchParameters.setUserAuthorizedFaces(userService.findByUserName(authentication.getName()).getAuthorizedFaces());
+        if (authentication.getName().compareTo(adminUserName) != 0) {
+            searchParameters.setUserAuthorizedFaces(userService.findByUserName(authentication.getName()).getAuthorizedFaces());
+        }
 
         // search photos
         photoList = photoSearchService.findByCriteria(searchParameters);

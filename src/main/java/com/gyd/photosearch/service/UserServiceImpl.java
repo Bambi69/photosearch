@@ -65,10 +65,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /**
-     * check if authentication information corresponds to admin role
-     * @param authentication
-     */
     @Override
     public void isAdmin(Authentication authentication) throws Exception {
         if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN))) {
