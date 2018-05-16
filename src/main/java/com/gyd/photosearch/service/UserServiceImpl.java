@@ -9,11 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,19 +17,25 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserDetailsService {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
 
     private Logger logger = LogManager.getRootLogger();
 
-    private List<User> users = new ArrayList<User>();
+    private List<User> users = new ArrayList<>();
 
     private static String ROLE_ADMIN = "ROLE_ADMIN";
     private static String ROLE_MODERATOR = "ROLE_MODERATOR";
     private static String ROLE_USER = "ROLE_USER";
 
+    @Override
+    public User findByUserName(String userName) throws TechnicalException {
+        return userRepository.findByUsername(userName);
+    }
+
+    @Override
     public void createUsers() {
 
         // create user index
@@ -63,40 +65,34 @@ public class UserServiceImpl implements UserDetailsService {
         }
     }
 
-    public UserDetails loadUserByUsername(String username) {
-
-        User user = null;
-        try {
-            user = userRepository.findByUsername(username);
-            if (user == null) {
-                throw new UsernameNotFoundException(
-                        "No user found with username: "+ username);
-            }
-        } catch (TechnicalException e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
+    /**
+     * check if authentication information corresponds to admin role
+     * @param authentication
+     */
+    @Override
+    public void isAdmin(Authentication authentication) throws Exception {
+        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN))) {
+            throw new Exception();
         }
-        boolean enabled = true;
-        boolean accountNonExpired = true;
-        boolean credentialsNonExpired = true;
-        boolean accountNonLocked = true;
-        return  new org.springframework.security.core.userdetails.User
-                (user.getUserName(),
-                        user.getPassword().toLowerCase(), enabled, accountNonExpired,
-                        credentialsNonExpired, accountNonLocked,
-                        getAuthorities(user.getRole()));
     }
 
-    /**
-     * get spring security authorities from user role
-     *
-     * @param role
-     * @return
-     */
-    private static List<GrantedAuthority> getAuthorities (String role) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(role));
-        return authorities;
+    @Override
+    public String getUserRoleFromAuthentication(Authentication authentication) {
+        if(authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN))) {
+            return ROLE_ADMIN;
+        }
+        if(authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_MODERATOR))) {
+            return ROLE_MODERATOR;
+        }
+        return ROLE_USER;
+    }
+
+    @Override
+    public Boolean isUserRole(Authentication authentication) {
+        if (getUserRoleFromAuthentication(authentication).compareTo(ROLE_USER) == 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -126,15 +122,5 @@ public class UserServiceImpl implements UserDetailsService {
         users.add(julien);
         users.add(laurianne);
         users.add(germain);
-    }
-
-    /**
-     * check if authentication information corresponds to admin role
-     * @param authentication
-     */
-    public void isAdmin(Authentication authentication) throws Exception {
-        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN))) {
-            throw new Exception();
-        }
     }
 }

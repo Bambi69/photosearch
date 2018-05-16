@@ -1,7 +1,7 @@
 package com.gyd.photosearch.controller;
 
 import com.gyd.photosearch.service.IndexationService;
-import com.gyd.photosearch.service.UserServiceImpl;
+import com.gyd.photosearch.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class AdministrationController {
     private IndexationService indexationService;
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @RequestMapping("/administration")
     public String administration() {

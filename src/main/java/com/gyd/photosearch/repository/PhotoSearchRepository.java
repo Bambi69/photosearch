@@ -118,6 +118,11 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
         // init result
         BoolQueryBuilder result = QueryBuilders.boolQuery();
 
+        // filter by authorized face
+        if (searchParameters.getSearchRestrictionsToApply()) {
+            result.must(QueryBuilders.termsQuery(faceColumnName, searchParameters.getUserAuthorizedFaces()));
+        }
+
         // filter by text
         if (searchParameters != null && searchParameters.getTextToSearch() != null
                 && searchParameters.getTextToSearch().compareTo("") != 0) {
@@ -209,7 +214,7 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
         }
 
         // at the end, we must add yearFacetEntry
-        if (yearFacetEntry != null) {
+        if (yearFacetEntry != null && yearFacetEntry.getTitle() != null) {
             datesFacet.getFacetEntries().add(yearFacetEntry);
         }
 

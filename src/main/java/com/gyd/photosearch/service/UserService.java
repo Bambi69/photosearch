@@ -1,21 +1,45 @@
 package com.gyd.photosearch.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.gyd.photosearch.entity.User;
+import com.gyd.photosearch.exception.TechnicalException;
+import org.springframework.security.core.Authentication;
 
 public interface UserService {
 
     /**
-     * service used to create all users and define roles
+     * find user by user name
+     *
+     * @param userName
+     * @return user
+     */
+    User findByUserName(String userName) throws TechnicalException;
+
+    /**
+     * service used to create all users with roles and search restrictions
      */
     void createUsers();
 
     /**
-     * find user by name and return spring security user details
+     * check if authentication corresponds to admin role
      *
-     * @param username
-     * @return
-     * @throws UsernameNotFoundException
+     * @param authentication
+     * @throws Exception in case of authentication does not correspond to admin role
      */
-    UserDetails loadUserByUsername(String username) throws Exception;
+    void isAdmin(Authentication authentication) throws Exception;
+
+    /**
+     * return user role from authentication information
+     *
+     * @param authentication
+     * @return user role
+     */
+    String getUserRoleFromAuthentication(Authentication authentication);
+
+    /**
+     * check if authentication corresponds to user role
+     *
+     * @param authentication
+     * @return true if user has "user" role
+     */
+    Boolean isUserRole(Authentication authentication);
 }

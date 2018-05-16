@@ -3,10 +3,14 @@ package com.gyd.photosearch.controller;
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.service.PhotoSearchService;
+import com.gyd.photosearch.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -35,20 +39,29 @@ public class HomeController {
 
     private Logger logger = LogManager.getRootLogger();
 
+    private PhotoList photoList;
+
     @Autowired
     private PhotoSearchService photoSearchService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * list all photos without any filter
      * reinit the session
      *
+     * @param searchParametersSession
      * @param model
      * @param sessionStatus to be able to reinit the session
      * @return
+     * @throws Exception
      */
     @RequestMapping("/")
     public String listAllPhotos(
-            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,Model model, SessionStatus sessionStatus) {
+            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
+            Model model,
+            SessionStatus sessionStatus) throws Exception {
 
         logger.info("listAllPhotos is called");
 
@@ -59,13 +72,9 @@ public class HomeController {
         searchParametersSession = new SearchParameters(nbItemsByPage);
         model.addAttribute("searchParametersSession", searchParametersSession);
 
-        try {
-            PhotoList photoList = photoSearchService.findByCriteria(new SearchParameters(nbItemsByPage));
-            model.addAttribute("photoList", photoList);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
+        // search photos and update model
+        searchPhotosAndUpdateModel(model, new SearchParameters(nbItemsByPage));
+
         return "home";
     }
 
@@ -84,7 +93,7 @@ public class HomeController {
             @RequestParam(value="type", required=true) String type,
             @RequestParam(value="selectedFacetValue", required=true) String selectedFacetValue,
             @RequestParam(value="action", required=true) String action,
-            Model model) {
+            Model model) throws Exception {
 
         logger.info("filterByFacetValue is called");
 
@@ -97,16 +106,8 @@ public class HomeController {
                     .rebuildSearchParametersFromUnselectedFacet(searchParametersSession, type, selectedFacetValue);
         }
 
-        try {
-            PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
-            model.addAttribute("photoList", photoList);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
-
-        // update model from user session
-        setModelFromUserSession(searchParametersSession, model);
+        // search photos and update model
+        searchPhotosAndUpdateModel(model, searchParametersSession);
 
         return "home";
     }
@@ -128,7 +129,7 @@ public class HomeController {
             @RequestParam(value="text", required=true) String text,
             @RequestParam(value="sessionToReinit", required=false, defaultValue = "true") Boolean sessionToReinit,
             Model model,
-            SessionStatus sessionStatus) {
+            SessionStatus sessionStatus) throws Exception {
 
         logger.info("search by text is called");
 
@@ -145,16 +146,8 @@ public class HomeController {
         // set search parameters
         searchParametersSession.setTextToSearch(text);
 
-        try {
-            PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
-            model.addAttribute("photoList", photoList);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
-
-        // update model from user session
-        setModelFromUserSession(searchParametersSession, model);
+        // search photos and update model
+        searchPhotosAndUpdateModel(model, searchParametersSession);
 
         return "home";
     }
@@ -171,7 +164,7 @@ public class HomeController {
     public String switchPage(
             @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
             @RequestParam(value="pageNumber", required=false) Integer pageNumber,
-            Model model) {
+            Model model) throws Exception {
 
         logger.info("switchPage is called");
 
@@ -179,29 +172,42 @@ public class HomeController {
         searchParametersSession = photoSearchService.rebuildSearchParametersForSwitchPageAction(
                 searchParametersSession, pageNumber);
 
-        try {
-            PhotoList photoList = photoSearchService.findByCriteria(searchParametersSession);
-            model.addAttribute("photoList", photoList);
-
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
-
-        // update model from user session
-        setModelFromUserSession(searchParametersSession, model);
+        // search photos and update model
+        searchPhotosAndUpdateModel(model, searchParametersSession);
 
         return "home";
     }
 
     /**
-     * set model from user session
+     * search photos which correspond to search parameters
+     * add list to the model
+     * update model with text to search
      *
-     * @param searchParametersSession
      * @param model
+     * @param searchParameters
+     * @return
+     * @throws Exception
      */
-    private void setModelFromUserSession(SearchParameters searchParametersSession, Model model) {
-        model.addAttribute("text", searchParametersSession.getTextToSearch());
+    private void searchPhotosAndUpdateModel(Model model, SearchParameters searchParameters) throws Exception {
+
+        // retrieve user's role and search restrictions
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // check if user is authenticated
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            throw new Exception("user is not authenticated");
+        }
+
+        // set user role
+        searchParameters.setSearchRestrictionsToApply(userService.isUserRole(authentication));
+
+        // set search restrictions associated to the user
+        searchParameters.setUserAuthorizedFaces(userService.findByUserName(authentication.getName()).getAuthorizedFaces());
+
+        // search photos
+        photoList = photoSearchService.findByCriteria(searchParameters);
+        model.addAttribute("photoList", photoList);
+        model.addAttribute("text", searchParameters.getTextToSearch());
     }
 
     @ModelAttribute("searchParametersSession")

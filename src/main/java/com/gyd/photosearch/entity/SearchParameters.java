@@ -1,18 +1,23 @@
 package com.gyd.photosearch.entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SearchParameters {
 
-    String textToSearch;
-    Map<String, List<String>> selectedFacetValues;
+    private String textToSearch;
+    private Map<String, List<String>> selectedFacetValues;
+
+    // user restrictions
+    private Boolean isSearchRestrictionsToApply = true;
+    private List<String> userAuthorizedFaces = new ArrayList<>();
 
     // pagination
-    Integer firstItemId; // start by 0
-    Integer nbItemsByPage;
-    Integer activePage;
+    private Integer firstItemId; // start by 0
+    private Integer nbItemsByPage;
+    private Integer activePage;
 
     /**
      * default constructor
@@ -24,6 +29,8 @@ public class SearchParameters {
         this.firstItemId = 0;
         this.nbItemsByPage = nbItemsByPage;
         this.activePage = 1;
+        this.userAuthorizedFaces = new ArrayList<>();
+        this.isSearchRestrictionsToApply = true;
     }
 
 
@@ -65,5 +72,21 @@ public class SearchParameters {
 
     public void setNbItemsByPage(Integer nbItemsByPage) {
         this.nbItemsByPage = nbItemsByPage;
+    }
+
+    public List<String> getUserAuthorizedFaces() {
+        return userAuthorizedFaces;
+    }
+
+    public void setUserAuthorizedFaces(List<String> userAuthorizedFaces) {
+        this.userAuthorizedFaces = userAuthorizedFaces;
+    }
+
+    public Boolean getSearchRestrictionsToApply() {
+        return isSearchRestrictionsToApply;
+    }
+
+    public void setSearchRestrictionsToApply(Boolean searchRestrictionsToApply) {
+        isSearchRestrictionsToApply = searchRestrictionsToApply;
     }
 }

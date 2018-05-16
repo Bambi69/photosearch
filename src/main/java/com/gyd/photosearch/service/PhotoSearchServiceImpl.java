@@ -14,19 +14,28 @@ import java.util.List;
 public class PhotoSearchServiceImpl implements PhotoSearchService {
 
     @Value("${ui.search.nbItemsByPage}")
-    public Integer nbItemsByPage;
+    private Integer nbItemsByPage;
 
     @Value("${ui.facets.year.searchType}")
-    public String yearFacetSearchType;
+    private String yearFacetSearchType;
 
     @Value("${ui.facets.month.searchType}")
-    public String monthFacetSearchType;
+    private String monthFacetSearchType;
 
     @Autowired
     private PhotoSearchRepository photoSearchRepository;
 
     @Override
     public PhotoList findByCriteria(SearchParameters searchParameters) throws Exception {
+
+        // for user with "user" role
+        if (searchParameters.getSearchRestrictionsToApply()) {
+
+            // if no authorized faces, return exception (configuration issue)
+            if (searchParameters.getUserAuthorizedFaces() == null || searchParameters.getUserAuthorizedFaces().size() == 0) {
+                throw new Exception("No search restrictions defined by administrator. Please contact administrator.");
+            }
+        }
 
         // query elasticsearch
         PhotoList photoList = photoSearchRepository.findByCriteria(searchParameters);
