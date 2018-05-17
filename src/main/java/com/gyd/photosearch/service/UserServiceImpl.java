@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUserName(String userName) throws TechnicalException {
-        return userRepository.findByUsername(userName);
+        return userRepository.findById(userName);
     }
 
     @Override

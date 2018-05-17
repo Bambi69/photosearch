@@ -4,7 +4,6 @@ import com.gyd.photosearch.entity.User;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -57,22 +56,13 @@ public class UserRepository extends TemplateRepository<User> {
     }
 
     /**
-     * find user by user name
+     * find user by id
      *
-     * @param username
-     * @return
+     * @param id
+     * @return user corresponding to this id
+     * @throws TechnicalException
      */
-    public User findByUsername(String username) throws TechnicalException {
-        try {
-            GetResponse response = esClient.prepareGet(userIndexName, userIndexType, username).get();
-            return convertSourceAsStringToBean(response.getSourceAsString());
-
-        // if index does not exist, return null. Else, in memory authentication cannot succeed
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e.getMessage());
-            return null;
-        }
-
+    public User findById(String id) throws TechnicalException {
+        return findById(userIndexName, userIndexType, id);
     }
 }

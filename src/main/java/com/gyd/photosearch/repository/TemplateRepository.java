@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
@@ -21,6 +22,28 @@ public class TemplateRepository<T> {
     protected Logger logger = LogManager.getRootLogger();
 
     private Class<T> classType;
+
+    /**
+     * generic find by id
+     *
+     * @param indexName
+     * @param indexType
+     * @param id
+     * @return result T object
+     * @throws TechnicalException
+     */
+    protected T findById(String indexName, String indexType, String id) throws TechnicalException {
+        try {
+            GetResponse response = esClient.prepareGet(indexName, indexType, id).get();
+            return convertSourceAsStringToBean(response.getSourceAsString());
+
+            // if index does not exist, return null. Else, in memory authentication cannot succeed
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            return null;
+        }
+    }
 
     /**
      * convert elasticsearch search response to list of results

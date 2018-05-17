@@ -2,7 +2,7 @@ package com.gyd.photosearch.service;
 
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
-import com.gyd.photosearch.repository.PhotoSearchRepository;
+import com.gyd.photosearch.repository.PhotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class PhotoServiceImpl implements PhotoService {
     private String monthFacetSearchType;
 
     @Autowired
-    private PhotoSearchRepository photoSearchRepository;
+    private PhotoRepository photoSearchRepository;
 
     @Override
     public PhotoList findByCriteria(SearchParameters searchParameters) throws Exception {

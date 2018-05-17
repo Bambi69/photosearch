@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class PhotoSearchRepository extends TemplateRepository<Photo> {
+public class PhotoRepository extends TemplateRepository<Photo> {
 
     @Value("${elasticsearch.indexpattern.face}")
     private String faceColumnName;
@@ -59,7 +59,7 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
     private static String FACE_AGGREGATION = "01";
     private static String MONTH_AGGREGATION = "02";
 
-    public PhotoSearchRepository() {
+    public PhotoRepository() {
         setClassType(Photo.class);
     }
 
@@ -72,7 +72,7 @@ public class PhotoSearchRepository extends TemplateRepository<Photo> {
      */
     public PhotoList findByCriteria(SearchParameters searchParameters) throws TechnicalException {
 
-        logger.info("PhotoSearchRepository - findAll");
+        logger.info("PhotoRepository - findAll");
 
         // query elasticsearch
         SearchRequestBuilder request = esClient.prepareSearch(photoIndexName)
