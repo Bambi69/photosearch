@@ -4,13 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User implements Serializable {
+public class User extends GenericEntity implements Serializable {
 
     private String userName;
     private String password;
     private String role;
     private List<String> authorizedFaces = new ArrayList<>();
-    private byte[] json; // to index photo, we need photo in json format
 
     public User() {
     }
@@ -52,13 +51,5 @@ public class User implements Serializable {
 
     public void setAuthorizedFaces(List<String> authorizedFaces) {
         this.authorizedFaces = authorizedFaces;
-    }
-
-    public byte[] getJson() {
-        return json;
-    }
-
-    public void setJson(byte[] json) {
-        this.json = json;
     }
 }

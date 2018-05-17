@@ -1,12 +1,13 @@
 package com.gyd.photosearch.entity;
 
-import java.awt.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Photo implements Serializable {
+public class Photo extends GenericEntity implements Serializable {
 
     private String name;
     private String thbName; // thumbnail generated file name
@@ -14,15 +15,16 @@ public class Photo implements Serializable {
     private Integer yearTimeOriginal;
     private String monthTimeOriginal;
     private List<String> faces = new ArrayList<String>();
-    private List<String> unknownKeywords= new ArrayList<String>();
     private Location location;
     private String cameraModel;
     private Date dateIndexed;
-    private Image imageToDisplay;
-    private String url;
-    private String thbUrl; // thumbnail image url
     private String resolution;
-    private byte[] json; // to index photo, we need photo in json format
+
+    @JsonIgnore
+    private String url;
+
+    @JsonIgnore
+    private String thbUrl; // thumbnail image url
 
     public String getName() {
         return name;
@@ -64,14 +66,6 @@ public class Photo implements Serializable {
         this.faces = faces;
     }
 
-    public List<String> getUnknownKeywords() {
-        return unknownKeywords;
-    }
-
-    public void setUnknownKeywords(List<String> unknownKeywords) {
-        this.unknownKeywords = unknownKeywords;
-    }
-
     public Location getLocation() {
         return location;
     }
@@ -96,38 +90,14 @@ public class Photo implements Serializable {
         this.dateIndexed = dateIndexed;
     }
 
-    public Image getImageToDisplay() {
-        return imageToDisplay;
-    }
-
-    public void setImageToDisplay(Image imageToDisplay) {
-        this.imageToDisplay = imageToDisplay;
-    }
-
     public String getUrl() {
         //TODO we must delete the root path
         return "/photos/" + getName();
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     public String getThbUrl() {
         //TODO we must delete the root path
         return "/photos/" + getThbName();
-    }
-
-    public void setThbUrl(String thbUrl) {
-        this.thbUrl = thbUrl;
-    }
-
-    public byte[] getJson() {
-        return json;
-    }
-
-    public void setJson(byte[] json) {
-        this.json = json;
     }
 
     public String getResolution() {

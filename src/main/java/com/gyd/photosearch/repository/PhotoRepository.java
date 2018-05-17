@@ -108,6 +108,17 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     }
 
     /**
+     * find photo by id
+     *
+     * @param id
+     * @return photo corresponding to this id
+     * @throws TechnicalException
+     */
+    public Photo findById(String id) throws TechnicalException {
+        return findById(photoIndexName, photoIndexType, id);
+    }
+
+    /**
      * build filter from search parameters
      *
      * @param searchParameters
