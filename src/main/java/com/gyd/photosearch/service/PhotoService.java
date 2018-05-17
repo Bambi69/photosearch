@@ -3,7 +3,7 @@ package com.gyd.photosearch.service;
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
 
-public interface PhotoSearchService {
+public interface PhotoService {
 
     /**
      * search photos by criteria

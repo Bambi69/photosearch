@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class PhotoSearchServiceImpl implements PhotoSearchService {
+public class PhotoServiceImpl implements PhotoService {
 
     @Value("${ui.search.nbItemsByPage}")
     private Integer nbItemsByPage;

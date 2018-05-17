@@ -2,7 +2,7 @@ package com.gyd.photosearch.controller;
 
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
-import com.gyd.photosearch.service.PhotoSearchService;
+import com.gyd.photosearch.service.PhotoService;
 import com.gyd.photosearch.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,23 +29,23 @@ public class HomeController {
     private String adminUserName;
 
     @Value("${ui.facets.face.searchType}")
-    public String faceFacetSearchType;
+    private String faceFacetSearchType;
 
     @Value("${ui.facets.year.searchType}")
-    public String yearFacetSearchType;
+    private String yearFacetSearchType;
 
     @Value("${ui.facets.month.searchType}")
-    public String monthFacetSearchType;
+    private String monthFacetSearchType;
 
     @Value("${ui.search.nbItemsByPage}")
-    public Integer nbItemsByPage;
+    private Integer nbItemsByPage;
 
     private Logger logger = LogManager.getRootLogger();
 
     private PhotoList photoList;
 
     @Autowired
-    private PhotoSearchService photoSearchService;
+    private PhotoService photoService;
 
     @Autowired
     private UserService userService;
@@ -102,10 +102,10 @@ public class HomeController {
 
         // update user session from selected facet
         if (action != null && action.compareTo("select") == 0) {
-            searchParametersSession = photoSearchService
+            searchParametersSession = photoService
                     .rebuildSearchParametersFromSelectedFacet(searchParametersSession, type, selectedFacetValue);
         } else {
-            searchParametersSession = photoSearchService
+            searchParametersSession = photoService
                     .rebuildSearchParametersFromUnselectedFacet(searchParametersSession, type, selectedFacetValue);
         }
 
@@ -172,7 +172,7 @@ public class HomeController {
         logger.info("switchPage is called");
 
         // set search parameters to take into account pagination action
-        searchParametersSession = photoSearchService.rebuildSearchParametersForSwitchPageAction(
+        searchParametersSession = photoService.rebuildSearchParametersForSwitchPageAction(
                 searchParametersSession, pageNumber);
 
         // search photos and update model
@@ -210,7 +210,7 @@ public class HomeController {
         }
 
         // search photos
-        photoList = photoSearchService.findByCriteria(searchParameters);
+        photoList = photoService.findByCriteria(searchParameters);
         model.addAttribute("photoList", photoList);
         model.addAttribute("text", searchParameters.getTextToSearch());
     }
