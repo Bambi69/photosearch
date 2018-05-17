@@ -102,22 +102,22 @@ public class UserServiceImpl implements UserService {
 
         List<String> julienAuthorizedFaces = new ArrayList<>();
         julienAuthorizedFaces.add("Rose DEVELLE");
-        julienAuthorizedFaces.add("Julien DEVELLE");
-        julienAuthorizedFaces.add("Hubert DEVELLE");
-        julienAuthorizedFaces.add("Marie-Laure DEVELLE");
         julienAuthorizedFaces.add("Margot YVRARD");
+        julienAuthorizedFaces.add("Louison YVRARD");
+        julienAuthorizedFaces.add("Leon TRONTTIN");
+        julienAuthorizedFaces.add("Charlotte WITTMAN");
         User julien = new User("juliend", "vlmkq@&123", ROLE_USER, julienAuthorizedFaces);
 
-        List<String> laurianneAuthorizedFaces = new ArrayList<>();
-        laurianneAuthorizedFaces.add("Laurianne GAUTHIER");
-        User laurianne = new User("laurianneg", "vlmkq@&123", ROLE_USER, laurianneAuthorizedFaces);
-
-        User germain = new User("germainy", "vlmkq@&123", ROLE_USER, null);
+        List<String> germainAuthorizedFaces = new ArrayList<>();
+        germainAuthorizedFaces.add("Laurianne GAUTHIER");
+        germainAuthorizedFaces.add("Margot YVRARD");
+        germainAuthorizedFaces.add("Louison YVRARD");
+        germainAuthorizedFaces.add("Axel YVRARD");
+        User germain = new User("germainy", "vlmkq@&123", ROLE_USER, germainAuthorizedFaces);
 
         users.add(gael);
         users.add(helene);
         users.add(julien);
-        users.add(laurianne);
         users.add(germain);
     }
 }
