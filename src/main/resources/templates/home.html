@@ -73,7 +73,7 @@
                 <section class="row text-center placeholders">
 
                     <div class="flexbin flexbin-margin" >
-                        <a th:each="photo,iterationstatus :${photoList.photos}" th:href="${photo.url}">
+                        <a th:each="photo,iterationstatus :${photoList.photos}" th:href="@{/displayPhoto(photoId=${photo.id})}">
                             <img th:alt="${photo.name}" th:src="${photo.thbUrl}"/>
                         </a>
                     </div>

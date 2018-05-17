@@ -1,7 +1,9 @@
 package com.gyd.photosearch.service;
 
+import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
+import com.gyd.photosearch.exception.TechnicalException;
 
 public interface PhotoService {
 
@@ -42,4 +44,12 @@ public interface PhotoService {
      * @return
      */
     SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParametersSession, String type, String selectedFacetValue);
+
+    /**
+     * find photo by id
+     *
+     * @param id
+     * @return photo corresponding to this id
+     */
+    Photo findById(String id) throws TechnicalException;
 }

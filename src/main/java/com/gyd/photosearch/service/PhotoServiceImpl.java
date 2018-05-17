@@ -1,7 +1,9 @@
 package com.gyd.photosearch.service;
 
+import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
+import com.gyd.photosearch.exception.TechnicalException;
 import com.gyd.photosearch.repository.PhotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +25,7 @@ public class PhotoServiceImpl implements PhotoService {
     private String monthFacetSearchType;
 
     @Autowired
-    private PhotoRepository photoSearchRepository;
+    private PhotoRepository photoRepository;
 
     @Override
     public PhotoList findByCriteria(SearchParameters searchParameters) throws Exception {
@@ -38,7 +40,7 @@ public class PhotoServiceImpl implements PhotoService {
         }
 
         // query elasticsearch
-        PhotoList photoList = photoSearchRepository.findByCriteria(searchParameters);
+        PhotoList photoList = photoRepository.findByCriteria(searchParameters);
 
         // update page list in search parameters
         List<Integer> pageList = new ArrayList<>();
@@ -129,6 +131,11 @@ public class PhotoServiceImpl implements PhotoService {
         searchParameters = reinitPaginationParameters(searchParameters);
 
         return searchParameters;
+    }
+
+    @Override
+    public Photo findById(String id) throws TechnicalException {
+        return photoRepository.findById(id);
     }
 
     @Override
