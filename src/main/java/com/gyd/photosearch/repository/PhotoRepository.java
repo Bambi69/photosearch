@@ -5,6 +5,7 @@ import com.gyd.photosearch.exception.TechnicalException;
 import com.gyd.photosearch.util.DateUtil;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -15,16 +16,23 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 @Repository
 public class PhotoRepository extends TemplateRepository<Photo> {
 
     @Value("${elasticsearch.indexpattern.face}")
     private String faceColumnName;
+
+    @Value("${elasticsearch.indexpattern.confidential}")
+    private String confidentialColumnName;
 
     @Value("${elasticsearch.indexpattern.month}")
     private String monthColumnName;
@@ -119,6 +127,23 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     }
 
     /**
+     * update photo
+     *
+     * @param photo
+     */
+    public void update(Photo photo) throws TechnicalException, ExecutionException, InterruptedException, IOException {
+        UpdateRequest updateRequest = new UpdateRequest();
+        updateRequest.index(photoIndexName);
+        updateRequest.type(photoIndexType);
+        updateRequest.id(photo.getId());
+        updateRequest.doc(jsonBuilder()
+                .startObject()
+                .field(confidentialColumnName, photo.getConfidential())
+                .endObject());
+        esClient.update(updateRequest).get();
+    }
+
+    /**
      * build filter from search parameters
      *
      * @param searchParameters
@@ -129,9 +154,10 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         // init result
         BoolQueryBuilder result = QueryBuilders.boolQuery();
 
-        // filter by authorized face
+        // filter by authorized face and by confidential tag
         if (searchParameters.getSearchRestrictionsToApply()) {
             result.must(QueryBuilders.termsQuery(faceColumnName, searchParameters.getUserAuthorizedFaces()));
+            result.must(QueryBuilders.termsQuery(confidentialColumnName, false));
         }
 
         // filter by text

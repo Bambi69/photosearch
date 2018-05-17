@@ -19,6 +19,7 @@ public class Photo extends GenericEntity implements Serializable {
     private String cameraModel;
     private Date dateIndexed;
     private String resolution;
+    private Boolean isConfidential = false;
 
     @JsonIgnore
     private String url;
@@ -114,5 +115,13 @@ public class Photo extends GenericEntity implements Serializable {
 
     public void setThbName(String thbName) {
         this.thbName = thbName;
+    }
+
+    public Boolean getConfidential() {
+        return isConfidential;
+    }
+
+    public void setConfidential(Boolean confidential) {
+        isConfidential = confidential;
     }
 }

@@ -105,6 +105,7 @@ public class UserServiceImpl implements UserService {
         julienAuthorizedFaces.add("Julien DEVELLE");
         julienAuthorizedFaces.add("Hubert DEVELLE");
         julienAuthorizedFaces.add("Marie-Laure DEVELLE");
+        julienAuthorizedFaces.add("Margot YVRARD");
         User julien = new User("juliend", "vlmkq@&123", ROLE_USER, julienAuthorizedFaces);
 
         List<String> laurianneAuthorizedFaces = new ArrayList<>();

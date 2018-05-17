@@ -139,6 +139,13 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public Photo updateConfidentiality(Photo photo) throws Exception {
+        photo.setConfidential(!photo.getConfidential());
+        photoRepository.update(photo);
+        return photo;
+    }
+
+    @Override
     public SearchParameters rebuildSearchParametersForSwitchPageAction(
             SearchParameters searchParameters, Integer requestedPageNumber) {
 

@@ -52,4 +52,13 @@ public interface PhotoService {
      * @return photo corresponding to this id
      */
     Photo findById(String id) throws TechnicalException;
+
+    /**
+     * update photo confidentiality tag (true to false or false to true)
+     *
+     * @param photoInSession
+     * @return updated photo
+     * @throws Exception
+     */
+    Photo updateConfidentiality(Photo photoInSession) throws Exception;
 }

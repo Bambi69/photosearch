@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
 
     <!-- Required meta tags -->
@@ -46,13 +46,14 @@
 
     <div id="page-wrapper">
 
-        <!-- image detail part -->
+        <!-- image detail -->
         <div class="row">
 
-            <img style="width:100%" th:alt="${photo.name}" th:src="${photo.url}"/>
+            <img style="width:100%" th:alt="${photoInSession.name}" th:src="${photoInSession.url}"/>
 
             <br/><br/>
 
+            <!-- description part -->
             <div class="col-lg-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -62,33 +63,38 @@
                         <div class="list-group">
                             <a class="list-group-item">
                                 <i class="fa fa-calendar fa-fw"></i> Date de prise
-                                <span class="pull-right text-muted small"><em th:text="${photo.dateTimeOriginal}"/></span>
+                                <span class="pull-right text-muted small"><em th:text="${photoInSession.dateTimeOriginal}"/></span>
                             </a>
                             <a class="list-group-item">
                                 <i class="fa fa-camera fa-fw"></i> Appareil
-                                <span class="pull-right text-muted small"><em th:text="${photo.cameraModel}"/></span>
+                                <span class="pull-right text-muted small"><em th:text="${photoInSession.cameraModel}"/></span>
                             </a>
                             <a class="list-group-item">
                                 <i class="fa fa-arrows fa-fw"></i> Résolution originale
-                                <span class="pull-right text-muted small"><em th:text="${photo.resolution}"/></span>
+                                <span class="pull-right text-muted small"><em th:text="${photoInSession.resolution}"/></span>
                             </a>
-                            <a th:if="${photo.location != null}" class="list-group-item">
+                            <a th:if="${photoInSession.location != null}" class="list-group-item">
                                 <i class="fa fa-map-marker fa-fw"></i> Localisation
                                 <span class="pull-right text-muted small">
-                                    <em th:text="${photo.location.lat}"/>
+                                    <em th:text="${photoInSession.location.lat}"/>
                                     <em>x</em>
-                                    <em th:text="${photo.location.lon}"/>
+                                    <em th:text="${photoInSession.location.lon}"/>
                                 </span>
                             </a>
                             <a class="list-group-item">
                                 <i class="fa fa-file-photo-o fa-fw"></i> Nom du fichier
-                                <span class="pull-right text-muted small"><em th:text="${photo.name}"/></span>
+                                <span class="pull-right text-muted small"><em th:text="${photoInSession.name}"/></span>
+                            </a>
+                            <a sec:authorize="hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')" class="list-group-item" th:href="@{/updateConfidentiality}">
+                                <i class="fa fa-lock fa-fw"></i> Confidentiel
+                                <span class="pull-right text-muted small"><em th:text="${photoInSession.confidential}"/></span>
                             </a>
                         </div>
                     </div><!-- /.panel-body -->
                 </div>
             </div><!-- /.col-lg-6 -->
 
+            <!-- identified faces -->
             <div class="col-lg-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -99,7 +105,7 @@
                             <div class="col-lg-6">
 
                                 <div class="form-group">
-                                    <p class="form-control-static" th:each="face,iterationstatus :${photo.faces}" th:text="${face}"/>
+                                    <p class="form-control-static" th:each="face,iterationstatus :${photoInSession.faces}" th:text="${face}"/>
                                 </div>
                             </div>
                         </div>

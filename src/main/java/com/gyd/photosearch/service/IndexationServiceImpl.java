@@ -49,6 +49,9 @@ public class IndexationServiceImpl implements IndexationService {
     @Value("${path.photos.inerror}")
     private String photosInErrorPath;
 
+    @Value("${photo.tag.confidentiel}")
+    private String confidentialTag;
+
     @Autowired
     private IndexationRepository indexationRepository;
 
@@ -215,8 +218,11 @@ public class IndexationServiceImpl implements IndexationService {
 
             if (keywords != null) {
                 for (int j = 0; j < keywords.length; j++) {
-                    //logger.info("keywords " + keywords[j]);
-                    p.getFaces().add(keywords[j]);
+                    if (keywords[j].compareTo(confidentialTag)==0) {
+                        p.setConfidential(true);
+                    } else {
+                        p.getFaces().add(keywords[j]);
+                    }
                 }
             }
         }

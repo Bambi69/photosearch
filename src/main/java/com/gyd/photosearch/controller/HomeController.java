@@ -1,6 +1,5 @@
 package com.gyd.photosearch.controller;
 
-import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.service.PhotoService;
@@ -180,19 +179,6 @@ public class HomeController {
         searchPhotosAndUpdateModel(model, searchParametersSession);
 
         return "home";
-    }
-
-    @RequestMapping("/displayPhoto")
-    public String displayPhoto(
-            @RequestParam(value="photoId", required=true) String photoId,
-            Model model) throws Exception {
-
-        logger.info("displayPhoto is called");
-
-        Photo p = photoService.findById(photoId);
-        model.addAttribute("photo", p);
-
-        return "photoDetail";
     }
 
     /**
