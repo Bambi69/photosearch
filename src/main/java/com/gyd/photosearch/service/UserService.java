@@ -28,6 +28,14 @@ public interface UserService {
     void isAdmin(Authentication authentication) throws Exception;
 
     /**
+     * check if authentication corresponds to admin or moderator role
+     *
+     * @param authentication
+     * @throws Exception in case of authentication does not correspond to these roles
+     */
+    void isAdminOrModerator(Authentication authentication) throws Exception;
+
+    /**
      * return user role from authentication information
      *
      * @param authentication

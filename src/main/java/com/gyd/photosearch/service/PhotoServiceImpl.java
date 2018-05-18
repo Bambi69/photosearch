@@ -106,18 +106,6 @@ public class PhotoServiceImpl implements PhotoService {
         return searchParameters;
     }
 
-    /**
-     * reinitialize pagination parameters
-     *
-     * @param searchParameters
-     * @return
-     */
-    private SearchParameters reinitPaginationParameters(SearchParameters searchParameters) {
-        searchParameters.setFirstItemId(0);
-        searchParameters.setActivePage(1);
-        return searchParameters;
-    }
-
     @Override
     public SearchParameters rebuildSearchParametersFromUnselectedFacet(SearchParameters searchParameters, String type, String selectedFacetValue) {
         if (searchParameters.getSelectedFacetValues().get(type) != null) {
@@ -142,6 +130,9 @@ public class PhotoServiceImpl implements PhotoService {
     public Photo updateConfidentiality(Photo photo) throws Exception {
         photo.setConfidential(!photo.getConfidential());
         photoRepository.update(photo);
+
+        //TODO move confidential photos in another folder and add restrictions to this resource folder
+
         return photo;
     }
 
@@ -152,6 +143,18 @@ public class PhotoServiceImpl implements PhotoService {
         searchParameters.setFirstItemId((requestedPageNumber-1) * nbItemsByPage);
         searchParameters.setActivePage(requestedPageNumber);
 
+        return searchParameters;
+    }
+
+    /**
+     * reinitialize pagination parameters
+     *
+     * @param searchParameters
+     * @return
+     */
+    private SearchParameters reinitPaginationParameters(SearchParameters searchParameters) {
+        searchParameters.setFirstItemId(0);
+        searchParameters.setActivePage(1);
         return searchParameters;
     }
 }

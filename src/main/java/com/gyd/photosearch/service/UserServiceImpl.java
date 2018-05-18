@@ -68,7 +68,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void isAdmin(Authentication authentication) throws Exception {
         if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN))) {
-            throw new Exception();
+            logger.error("Authenticated user tries to access to forbidden resource. This incident is reported.");
+            throw new Exception("Authenticated user tries to access to forbidden resource. This incident is reported.");
+        }
+    }
+
+    @Override
+    public void isAdminOrModerator(Authentication authentication) throws Exception {
+        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN))
+                && !authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_MODERATOR))) {
+            logger.error("Authenticated user tries to access to forbidden resource. This incident is reported.");
+            throw new Exception("Authenticated user tries to access to forbidden resource. This incident is reported.");
         }
     }
 
