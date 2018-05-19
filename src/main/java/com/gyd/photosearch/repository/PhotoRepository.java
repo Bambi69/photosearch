@@ -46,14 +46,20 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${elasticsearch.indexpattern.type}")
     private String typeColumnName;
 
+    @Value("${elasticsearch.indexpattern.dateTimeOriginal}")
+    private String dateTimeOriginalColumnName;
+
+    @Value("${elasticsearch.indexpattern.indexation}")
+    private String indexationNameColumnName;
+
+    @Value("${elasticsearch.indexpattern.nbFaces}")
+    private String nbFacesColumnName;
+
     @Value("${elasticsearch.photoindex.name}")
     private String photoIndexName;
 
     @Value("${elasticsearch.photoindex.type}")
     private String photoIndexType;
-
-    @Value("${elasticsearch.indexpattern.dateTimeOriginal}")
-    private String dateTimeOriginalColumnName;
 
     @Value("${ui.facets.face.name}")
     private String faceFacetName;
@@ -70,6 +76,15 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${ui.facets.type.name}")
     private String typeFacetName;
 
+    @Value("${ui.facets.confidential.name}")
+    private String confidentialFacetName;
+
+    @Value("${ui.facets.indexationName.name}")
+    private String indexationNameFacetName;
+
+    @Value("${ui.facets.nbFaces.name}")
+    private String nbFacesFacetName;
+
     @Value("${ui.facets.face.searchType}")
     public String faceFacetSearchType;
 
@@ -85,11 +100,23 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${ui.facets.type.searchType}")
     private String typeFacetSearchType;
 
+    @Value("${ui.facets.confidential.searchType}")
+    private String confidentialFacetSearchType;
+
+    @Value("${ui.facets.indexationName.searchType}")
+    private String indexationNameFacetSearchType;
+
+    @Value("${ui.facets.nbFaces.searchType}")
+    private String nbFacesFacetSearchType;
+
     private static String FACE_AGGREGATION = "01";
     private static String MONTH_AGGREGATION = "02";
     private static String YEAR_AGGREGATION = "03";
     private static String CAMERA_AGGREGATION = "04";
     private static String TYPE_AGGREGATION = "05";
+    private static String CONFIDENTIAL_AGGREGATION = "06";
+    private static String INDEXATION_AGGREGATION = "07";
+    private static String NB_FACES_AGGREGATION = "08";
 
     public PhotoRepository() {
         setClassType(Photo.class);
@@ -132,6 +159,18 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                 .addAggregation(
                         AggregationBuilders.terms(TYPE_AGGREGATION)
                                 .field(typeColumnName)
+                )
+                .addAggregation(
+                        AggregationBuilders.terms(CONFIDENTIAL_AGGREGATION)
+                                .field(confidentialColumnName)
+                )
+                .addAggregation(
+                        AggregationBuilders.terms(INDEXATION_AGGREGATION)
+                                .field(indexationNameColumnName)
+                )
+                .addAggregation(
+                        AggregationBuilders.terms(NB_FACES_AGGREGATION)
+                                .field(nbFacesColumnName)
                 )
                 // pagination
                 .setFrom(searchParameters.getFirstItemId())
@@ -221,6 +260,12 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                         result.must(QueryBuilders.termQuery(cameraColumnName, facetValue));
                     } else if (entry.getKey().compareTo(typeFacetSearchType)==0) {
                         result.must(QueryBuilders.termQuery(typeColumnName, facetValue));
+                    } else if (entry.getKey().compareTo(confidentialFacetSearchType)==0) {
+                        result.must(QueryBuilders.termQuery(confidentialColumnName, facetValue));
+                    } else if (entry.getKey().compareTo(indexationNameFacetSearchType)==0) {
+                        result.must(QueryBuilders.termQuery(indexationNameColumnName, facetValue));
+                    } else if (entry.getKey().compareTo(nbFacesFacetSearchType)==0) {
+                        result.must(QueryBuilders.termQuery(nbFacesColumnName, facetValue));
                     }
                 }
             }
@@ -244,11 +289,20 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         // retrieve faces facet from response
         SimpleFacet facesFacet = buildSimpleFacetFromSearchResponse(searchResponse, FACE_AGGREGATION, faceFacetName);
 
-        // retrieve faces facet from response
+        // retrieve cameras facet from response
         SimpleFacet camerasFacet = buildSimpleFacetFromSearchResponse(searchResponse, CAMERA_AGGREGATION, cameraFacetName);
 
-        // retrieve faces facet from response
+        // retrieve types facet from response
         SimpleFacet typesFacet = buildSimpleFacetFromSearchResponse(searchResponse, TYPE_AGGREGATION, typeFacetName);
+
+        // retrieve confidential facet from response
+        SimpleFacet confidentialFacet = buildSimpleFacetFromSearchResponse(searchResponse, CONFIDENTIAL_AGGREGATION, confidentialFacetName);
+
+        // retrieve indexation name facet from response
+        SimpleFacet indexationNameFacet = buildSimpleFacetFromSearchResponse(searchResponse, INDEXATION_AGGREGATION, indexationNameFacetName);
+
+        // retrieve nb faces facet from response
+        SimpleFacet nbFacesFacet = buildSimpleFacetFromSearchResponse(searchResponse, NB_FACES_AGGREGATION, nbFacesFacetName);
 
         // retrieve months facets from response
         InternalDateHistogram internalDateHistogram = searchResponse.getAggregations().get(MONTH_AGGREGATION);
@@ -303,6 +357,9 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         result.setDates(datesFacet);
         result.setCamera(camerasFacet);
         result.setTypes(typesFacet);
+        result.setConfidential(confidentialFacet);
+        result.setIndexationName(indexationNameFacet);
+        result.setNbFaces(nbFacesFacet);
 
         // define count
         result.setResultCount(searchResponse.getHits().getTotalHits());
@@ -327,7 +384,11 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         result.setGlobalCount(termsByFace.getDocCountError() + termsByFace.getSumOfOtherDocCounts());
         Integer facesFacetCount = 0;
         for (Terms.Bucket entry : termsByFace.getBuckets()) {
-            result.getFacetEntries().put((String) entry.getKey(), entry.getDocCount());
+            try {
+                result.getFacetEntries().put((String) entry.getKey(), entry.getDocCount());
+            } catch (ClassCastException e) {
+                result.getFacetEntries().put(((Long) entry.getKey()).toString(), entry.getDocCount());
+            }
             facesFacetCount += (int) entry.getDocCount();
         }
         result.setGlobalCount(new Long(facesFacetCount));

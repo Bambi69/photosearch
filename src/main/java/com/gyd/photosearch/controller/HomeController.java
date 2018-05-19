@@ -43,6 +43,15 @@ public class HomeController {
     @Value("${ui.facets.type.searchType}")
     private String typeFacetSearchType;
 
+    @Value("${ui.facets.confidential.searchType}")
+    private String confidentialFacetSearchType;
+
+    @Value("${ui.facets.indexationName.searchType}")
+    private String indexationNameFacetSearchType;
+
+    @Value("${ui.facets.nbFaces.searchType}")
+    private String nbFacesFacetSearchType;
+
     @Value("${ui.search.nbItemsByPage}")
     private Integer nbItemsByPage;
 
@@ -244,5 +253,20 @@ public class HomeController {
     @ModelAttribute("typeFacetSearchType")
     public String getTypeFacetSearchType(HttpServletRequest request) {
         return typeFacetSearchType;
+    }
+
+    @ModelAttribute("confidentialFacetSearchType")
+    public String getConfidentialFacetSearchType(HttpServletRequest request) {
+        return confidentialFacetSearchType;
+    }
+
+    @ModelAttribute("indexationNameFacetSearchType")
+    public String getIndexationNameFacetSearchType(HttpServletRequest request) {
+        return indexationNameFacetSearchType;
+    }
+
+    @ModelAttribute("nbFacesFacetSearchType")
+    public String getNbFacesFacetSearchType(HttpServletRequest request) {
+        return nbFacesFacetSearchType;
     }
 }

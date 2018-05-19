@@ -67,6 +67,9 @@ public class IndexationServiceImpl implements IndexationService {
     @Value("${photo.tag.withoutCamera}")
     private String withoutCameraTag;
 
+    @Value("${photo.tag.withCamera}")
+    private String withCameraTag;
+
     @Autowired
     private IndexationRepository indexationRepository;
 
@@ -119,6 +122,9 @@ public class IndexationServiceImpl implements IndexationService {
 
                     // retrieve relevant metadata
                     retrieveRelevantMetadata(p, listOfFiles[i]);
+
+                    // TODO define indexation references
+                    p.setIndexationName("2015 depuis application Photos");
 
                     // generate json (needed to index it in elastic search)
                     p.setJson(mapper.writeValueAsBytes(p));
@@ -210,23 +216,33 @@ public class IndexationServiceImpl implements IndexationService {
         ExifIFD0Directory exifFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
         if (exifFD0Directory != null) {
 
-            // retrieve original date time
-            Date originalDateTime = exifFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
-            Calendar c = Calendar.getInstance();
-            c.setTime(originalDateTime);
-            p.setDateTimeOriginal(DateUtil.convertDateToEsFormat(originalDateTime));
-            p.setYearTimeOriginal(c.get(Calendar.YEAR));
-            p.setMonthTimeOriginal(DateUtil.getMonthFromDate(originalDateTime));
-
             // retrieve camera model
-            String cameraModel = exifFD0Directory.getString(ExifIFD0Directory.TAG_MAKE);
-            cameraModel += " - " + exifFD0Directory.getString(ExifIFD0Directory.TAG_MODEL);
-            p.setCameraModel(cameraModel);
+            String cameraMake = exifFD0Directory.getString(ExifIFD0Directory.TAG_MAKE);
+            String cameraModel = exifFD0Directory.getString(ExifIFD0Directory.TAG_MODEL);
 
-        } else {
+            // if these metadata are correctly defined
+            if ((cameraMake != null && cameraMake.compareTo("") != 0)
+                    || (cameraModel != null && cameraModel.compareTo("") != 0)) {
 
-            // add tag
-            p.getTags().add(withoutCameraTag);
+                // set camera model
+                p.setCameraModel(cameraMake + " - " + cameraModel);
+
+                // retrieve original date time
+                Date originalDateTime = exifFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
+                Calendar c = Calendar.getInstance();
+                c.setTime(originalDateTime);
+                p.setDateTimeOriginal(DateUtil.convertDateToEsFormat(originalDateTime));
+                p.setYearTimeOriginal(c.get(Calendar.YEAR));
+                p.setMonthTimeOriginal(DateUtil.getMonthFromDate(originalDateTime));
+
+                // add tag
+                p.getTags().add(withCameraTag);
+
+            } else {
+
+                // add tag
+                p.getTags().add(withoutCameraTag);
+            }
         }
 
         // READ IPTC METADATA
@@ -245,15 +261,18 @@ public class IndexationServiceImpl implements IndexationService {
                         p.getFaces().add(keywords[j]);
                     }
                 }
+
+                // set nb identified face
+                p.setNbFaces(p.getFaces().size());
             }
 
             // if no face, add tag to this photo
-            if (p.getFaces().size() == 0 || (p.getFaces().size() == 1 && p.getFaces().contains(confidentialTag))) {
+            if (p.getFaces().size() == 0) {
                 p.getTags().add(withoutFaceTag);
             }
 
             // if no confidential tag, add public tag
-            if (p.getFaces().size() == 0 || !p.getFaces().contains(confidentialTag)) {
+            if (!p.getTags().contains(confidentialTag)) {
                 p.getTags().add(publicTag);
             }
         }

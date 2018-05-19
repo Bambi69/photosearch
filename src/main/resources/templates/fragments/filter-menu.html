@@ -84,6 +84,39 @@
                     </ul>
                     <!-- /.nav-second-level -->
                 </li>
+
+                <!-- confidential facet-->
+                <li>
+                    <a href="#"><i class="fa fa-lock fa-fw"></i> <baliseTexteNormal th:text="${photoList.confidential.name}" /><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li th:each="confidentialValue: ${photoList.confidential.facetEntries}" >
+                            <a th:href="@{/filterByFacetValue(type=${confidentialFacetSearchType},selectedFacetValue=${confidentialValue.key},action=select)}" th:text="${confidentialValue.key} + ' (' + ${confidentialValue.value} + ')'" />
+                        </li>
+                    </ul>
+                    <!-- /.nav-second-level -->
+                </li>
+
+                <!-- nb Faces facet-->
+                <li>
+                    <a href="#"><i class="fa fa-users fa-fw"></i> <baliseTexteNormal th:text="${photoList.nbFaces.name}" /><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li th:each="nbFacesItem: ${photoList.nbFaces.facetEntries}" >
+                            <a th:href="@{/filterByFacetValue(type=${nbFacesFacetSearchType},selectedFacetValue=${nbFacesItem.key},action=select)}" th:text="${nbFacesItem.key} + ' (' + ${nbFacesItem.value} + ')'" />
+                        </li>
+                    </ul>
+                    <!-- /.nav-second-level -->
+                </li>
+
+                <!-- indexation name facet-->
+                <li>
+                    <a href="#"><i class="fa fa-bookmark fa-fw"></i> <baliseTexteNormal th:text="${photoList.indexationName.name}" /><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li th:each="indexationNameItem: ${photoList.indexationName.facetEntries}" >
+                            <a th:href="@{/filterByFacetValue(type=${indexationNameFacetSearchType},selectedFacetValue=${indexationNameItem.key},action=select)}" th:text="${indexationNameItem.key} + ' (' + ${indexationNameItem.value} + ')'" />
+                        </li>
+                    </ul>
+                    <!-- /.nav-second-level -->
+                </li>
             </ul>
         </div>
         <!-- /.sidebar-collapse -->

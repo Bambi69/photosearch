@@ -16,6 +16,7 @@ public class Photo extends GenericEntity implements Serializable {
     private String monthTimeOriginal;
     private String season;
     private List<String> faces = new ArrayList<>();
+    private Integer nbFaces;
     private Location location;
     private String city;
     private String department;
@@ -26,6 +27,7 @@ public class Photo extends GenericEntity implements Serializable {
     private String resolution;
     private Boolean isConfidential = false;
     private List<String> tags = new ArrayList<>();
+    private String indexationName;
 
     @JsonIgnore
     private String url;
@@ -177,5 +179,21 @@ public class Photo extends GenericEntity implements Serializable {
 
     public void setSeason(String season) {
         this.season = season;
+    }
+
+    public Integer getNbFaces() {
+        return nbFaces;
+    }
+
+    public void setNbFaces(Integer nbFaces) {
+        this.nbFaces = nbFaces;
+    }
+
+    public String getIndexationName() {
+        return indexationName;
+    }
+
+    public void setIndexationName(String indexationName) {
+        this.indexationName = indexationName;
     }
 }

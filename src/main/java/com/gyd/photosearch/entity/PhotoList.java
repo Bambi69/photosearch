@@ -8,6 +8,9 @@ public class PhotoList {
     SimpleFacet faces;
     SimpleFacet camera;
     SimpleFacet types;
+    SimpleFacet confidential;
+    SimpleFacet indexationName;
+    SimpleFacet nbFaces;
     HierarchicalFacet dates;
     List<Photo> photos = new ArrayList<>();
     Long resultCount;
@@ -81,5 +84,29 @@ public class PhotoList {
 
     public void setTypes(SimpleFacet types) {
         this.types = types;
+    }
+
+    public SimpleFacet getConfidential() {
+        return confidential;
+    }
+
+    public void setConfidential(SimpleFacet confidential) {
+        this.confidential = confidential;
+    }
+
+    public SimpleFacet getIndexationName() {
+        return indexationName;
+    }
+
+    public void setIndexationName(SimpleFacet indexationName) {
+        this.indexationName = indexationName;
+    }
+
+    public SimpleFacet getNbFaces() {
+        return nbFaces;
+    }
+
+    public void setNbFaces(SimpleFacet nbFaces) {
+        this.nbFaces = nbFaces;
     }
 }
