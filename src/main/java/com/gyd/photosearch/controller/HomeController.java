@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
 
 @Controller
 @SessionAttributes("searchParametersSession")
@@ -35,6 +36,12 @@ public class HomeController {
 
     @Value("${ui.facets.month.searchType}")
     private String monthFacetSearchType;
+
+    @Value("${ui.facets.camera.searchType}")
+    private String cameraFacetSearchType;
+
+    @Value("${ui.facets.type.searchType}")
+    private String typeFacetSearchType;
 
     @Value("${ui.search.nbItemsByPage}")
     private Integer nbItemsByPage;
@@ -142,7 +149,7 @@ public class HomeController {
             sessionStatus.setComplete();
 
             // redirect to searchByText
-            return "redirect:/searchByText?text="+text+"&sessionToReinit=false";
+            return "redirect:/searchByText?text="+URLEncoder.encode(text, "UTF-8")+"&sessionToReinit=false";
         }
 
         // set search parameters
@@ -227,5 +234,15 @@ public class HomeController {
     @ModelAttribute("monthFacetSearchType")
     public String getMonthFacetSearchType (HttpServletRequest request) {
         return monthFacetSearchType;
+    }
+
+    @ModelAttribute("cameraFacetSearchType")
+    public String getCameraFacetSearchType(HttpServletRequest request) {
+        return cameraFacetSearchType;
+    }
+
+    @ModelAttribute("typeFacetSearchType")
+    public String getTypeFacetSearchType(HttpServletRequest request) {
+        return typeFacetSearchType;
     }
 }

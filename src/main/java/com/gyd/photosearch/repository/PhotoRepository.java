@@ -40,6 +40,12 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${elasticsearch.indexpattern.year}")
     private String yearColumnName;
 
+    @Value("${elasticsearch.indexpattern.camera}")
+    private String cameraColumnName;
+
+    @Value("${elasticsearch.indexpattern.type}")
+    private String typeColumnName;
+
     @Value("${elasticsearch.photoindex.name}")
     private String photoIndexName;
 
@@ -52,8 +58,17 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${ui.facets.face.name}")
     private String faceFacetName;
 
-    @Value("${ui.facets.datePrise.parMois.name}")
-    private String datePriseParMoisFacetName;
+    @Value("${ui.facets.datePrise.perMonth.name}")
+    private String datePrisePerMonthFacetName;
+
+    @Value("${ui.facets.datePrise.perYear.name}")
+    private String datePrisePerYearFacetName;
+
+    @Value("${ui.facets.camera.name}")
+    private String cameraFacetName;
+
+    @Value("${ui.facets.type.name}")
+    private String typeFacetName;
 
     @Value("${ui.facets.face.searchType}")
     public String faceFacetSearchType;
@@ -64,8 +79,17 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${ui.facets.month.searchType}")
     public String monthFacetSearchType;
 
+    @Value("${ui.facets.camera.searchType}")
+    private String cameraFacetSearchType;
+
+    @Value("${ui.facets.type.searchType}")
+    private String typeFacetSearchType;
+
     private static String FACE_AGGREGATION = "01";
     private static String MONTH_AGGREGATION = "02";
+    private static String YEAR_AGGREGATION = "03";
+    private static String CAMERA_AGGREGATION = "04";
+    private static String TYPE_AGGREGATION = "05";
 
     public PhotoRepository() {
         setClassType(Photo.class);
@@ -89,11 +113,25 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                 //.setPostFilter(QueryBuilders.rangeQuery("age").from(12).to(18))  // Filter
                 .addAggregation(
                         AggregationBuilders.terms(FACE_AGGREGATION)
-                                .field(faceColumnName))
+                                .field(faceColumnName)
+                )
                 .addAggregation(
                         AggregationBuilders.dateHistogram(MONTH_AGGREGATION)
                                 .field(dateTimeOriginalColumnName)
                                 .dateHistogramInterval(DateHistogramInterval.MONTH)
+                )
+                .addAggregation(
+                        AggregationBuilders.dateHistogram(YEAR_AGGREGATION)
+                                .field(dateTimeOriginalColumnName)
+                                .dateHistogramInterval(DateHistogramInterval.YEAR)
+                )
+                .addAggregation(
+                        AggregationBuilders.terms(CAMERA_AGGREGATION)
+                                .field(cameraColumnName)
+                )
+                .addAggregation(
+                        AggregationBuilders.terms(TYPE_AGGREGATION)
+                                .field(typeColumnName)
                 )
                 // pagination
                 .setFrom(searchParameters.getFirstItemId())
@@ -179,6 +217,10 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                         result.must(QueryBuilders.termQuery(yearColumnName, facetValue));
                     } else if (entry.getKey().compareTo(monthFacetSearchType)==0) {
                         result.must(QueryBuilders.termQuery(monthColumnName, facetValue));
+                    } else if (entry.getKey().compareTo(cameraFacetSearchType)==0) {
+                        result.must(QueryBuilders.termQuery(cameraColumnName, facetValue));
+                    } else if (entry.getKey().compareTo(typeFacetSearchType)==0) {
+                        result.must(QueryBuilders.termQuery(typeColumnName, facetValue));
                     }
                 }
             }
@@ -199,22 +241,20 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         // init result
         PhotoList result = new PhotoList();
 
-        // retrieve faces facets from response
-        Terms termsByFace = searchResponse.getAggregations().get(FACE_AGGREGATION);
-        SimpleFacet facesFacet = new SimpleFacet();
-        facesFacet.setName(faceFacetName);
-        facesFacet.setGlobalCount(termsByFace.getDocCountError() + termsByFace.getSumOfOtherDocCounts());
-        Integer facesFacetCount = 0;
-        for (Terms.Bucket entry : termsByFace.getBuckets()) {
-            facesFacet.getFacetEntries().put((String) entry.getKey(), entry.getDocCount());
-            facesFacetCount += (int) entry.getDocCount();
-        }
-        facesFacet.setGlobalCount(new Long(facesFacetCount));
+        // retrieve faces facet from response
+        SimpleFacet facesFacet = buildSimpleFacetFromSearchResponse(searchResponse, FACE_AGGREGATION, faceFacetName);
 
-        // retrieve histogram facets from response
+        // retrieve faces facet from response
+        SimpleFacet camerasFacet = buildSimpleFacetFromSearchResponse(searchResponse, CAMERA_AGGREGATION, cameraFacetName);
+
+        // retrieve faces facet from response
+        SimpleFacet typesFacet = buildSimpleFacetFromSearchResponse(searchResponse, TYPE_AGGREGATION, typeFacetName);
+
+        // retrieve months facets from response
         InternalDateHistogram internalDateHistogram = searchResponse.getAggregations().get(MONTH_AGGREGATION);
         HierarchicalFacet datesFacet = new HierarchicalFacet();
-        datesFacet.setName(datePriseParMoisFacetName);
+        datesFacet.setName(datePrisePerYearFacetName);
+        datesFacet.setSubName(datePrisePerMonthFacetName);
         String previousYear = null;
         HierarchicalFacetEntry yearFacetEntry = new HierarchicalFacetEntry();
 
@@ -255,13 +295,42 @@ public class PhotoRepository extends TemplateRepository<Photo> {
             datesFacet.getFacetEntries().add(yearFacetEntry);
         }
 
-        // build result
+        // define list of photos
         result.setPhotos(convertSearchResponse(searchResponse));
+
+        // define facets
         result.setFaces(facesFacet);
         result.setDates(datesFacet);
+        result.setCamera(camerasFacet);
+        result.setTypes(typesFacet);
+
+        // define count
         result.setResultCount(searchResponse.getHits().getTotalHits());
 
-        // return it
+        return result;
+    }
+
+    /**
+     * build simple facet (list of value with count) from search response
+     * ex:faces, camera, etc.
+     *
+     * @param searchResponse elastic search response
+     * @param aggregationReference reference of aggregation (set before requesting es)
+     * @param facetName name of facet to build
+     * @return simple facet (list of value with count)
+     */
+    private SimpleFacet buildSimpleFacetFromSearchResponse(SearchResponse searchResponse, String aggregationReference, String facetName) {
+
+        SimpleFacet result = new SimpleFacet();
+        Terms termsByFace = searchResponse.getAggregations().get(aggregationReference);
+        result.setName(facetName);
+        result.setGlobalCount(termsByFace.getDocCountError() + termsByFace.getSumOfOtherDocCounts());
+        Integer facesFacetCount = 0;
+        for (Terms.Bucket entry : termsByFace.getBuckets()) {
+            result.getFacetEntries().put((String) entry.getKey(), entry.getDocCount());
+            facesFacetCount += (int) entry.getDocCount();
+        }
+        result.setGlobalCount(new Long(facesFacetCount));
         return result;
     }
 }

@@ -6,6 +6,8 @@ import java.util.List;
 public class PhotoList {
 
     SimpleFacet faces;
+    SimpleFacet camera;
+    SimpleFacet types;
     HierarchicalFacet dates;
     List<Photo> photos = new ArrayList<>();
     Long resultCount;
@@ -63,5 +65,21 @@ public class PhotoList {
 
     public void setPages(List<Integer> pages) {
         this.pages = pages;
+    }
+
+    public SimpleFacet getCamera() {
+        return camera;
+    }
+
+    public void setCamera(SimpleFacet camera) {
+        this.camera = camera;
+    }
+
+    public SimpleFacet getTypes() {
+        return types;
+    }
+
+    public void setTypes(SimpleFacet types) {
+        this.types = types;
     }
 }

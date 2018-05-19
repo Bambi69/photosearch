@@ -52,6 +52,21 @@ public class IndexationServiceImpl implements IndexationService {
     @Value("${photo.tag.confidentiel}")
     private String confidentialTag;
 
+    @Value("${photo.tag.public}")
+    private String publicTag;
+
+    @Value("${photo.tag.withoutFace}")
+    private String withoutFaceTag;
+
+    @Value("${photo.tag.withoutLocation}")
+    private String withoutLocationTag;
+
+    @Value("${photo.tag.withLocation}")
+    private String withLocationTag;
+
+    @Value("${photo.tag.withoutCamera}")
+    private String withoutCameraTag;
+
     @Autowired
     private IndexationRepository indexationRepository;
 
@@ -207,6 +222,11 @@ public class IndexationServiceImpl implements IndexationService {
             String cameraModel = exifFD0Directory.getString(ExifIFD0Directory.TAG_MAKE);
             cameraModel += " - " + exifFD0Directory.getString(ExifIFD0Directory.TAG_MODEL);
             p.setCameraModel(cameraModel);
+
+        } else {
+
+            // add tag
+            p.getTags().add(withoutCameraTag);
         }
 
         // READ IPTC METADATA
@@ -220,10 +240,21 @@ public class IndexationServiceImpl implements IndexationService {
                 for (int j = 0; j < keywords.length; j++) {
                     if (keywords[j].compareTo(confidentialTag)==0) {
                         p.setConfidential(true);
+                        p.getTags().add(confidentialTag);
                     } else {
                         p.getFaces().add(keywords[j]);
                     }
                 }
+            }
+
+            // if no face, add tag to this photo
+            if (p.getFaces().size() == 0 || (p.getFaces().size() == 1 && p.getFaces().contains(confidentialTag))) {
+                p.getTags().add(withoutFaceTag);
+            }
+
+            // if no confidential tag, add public tag
+            if (p.getFaces().size() == 0 || !p.getFaces().contains(confidentialTag)) {
+                p.getTags().add(publicTag);
             }
         }
 
@@ -247,7 +278,6 @@ public class IndexationServiceImpl implements IndexationService {
                     }
                     */
             p.getLocation().setLon(longitude);
-            logger.info("longitude: " + longitude);
 
             // calculate latitude
             Rational[] latRat = gpsDirectory.getRationalArray(GpsDirectory.TAG_LATITUDE);
@@ -260,7 +290,14 @@ public class IndexationServiceImpl implements IndexationService {
                     }
                     */
             p.getLocation().setLat(latitude);
-            logger.info("latitude: " + latitude);
+
+            // add tag
+            p.getTags().add(withLocationTag);
+
+        } else {
+
+            // add tag
+            p.getTags().add(withoutLocationTag);
         }
 
         // READ JPEG METADATA

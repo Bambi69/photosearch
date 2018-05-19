@@ -6,6 +6,7 @@ import java.util.List;
 public class HierarchicalFacet {
 
     String name;
+    String subName;
     Long globalCount;
     List<HierarchicalFacetEntry> facetEntries = new ArrayList<>();
 
@@ -31,5 +32,13 @@ public class HierarchicalFacet {
 
     public void setFacetEntries(List<HierarchicalFacetEntry> facetEntries) {
         this.facetEntries = facetEntries;
+    }
+
+    public String getSubName() {
+        return subName;
+    }
+
+    public void setSubName(String subName) {
+        this.subName = subName;
     }
 }
