@@ -10,8 +10,8 @@ import static java.lang.Math.min;
 
 public class ImageResizer {
 
-    private static int THUMBNAIL_MAX_HEIGHT = 800;
-    private static int THUMBNAIL_MAX_WIDTH = 800;
+    private static int THUMBNAIL_MAX_HEIGHT = 400;
+    private static int THUMBNAIL_MAX_WIDTH = 400;
 
     private static int HIGH_QUALITY_MAX_HEIGHT = 1600;
     private static int HIGH_QUALITY_MAX_WIDTH = 1600;
