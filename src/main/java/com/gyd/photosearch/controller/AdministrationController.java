@@ -36,26 +36,4 @@ public class AdministrationController {
         indexationService.indexPhotos();
         return "administration";
     }
-
-    @RequestMapping("/createUsers")
-    public String createUsers(Authentication authentication) throws Exception {
-        logger.info("createUsers controller is called");
-
-        // check user authorizations
-        userService.isAdmin(authentication);
-
-        userService.createUsers();
-
-        return "administration";
-    }
-
-    @RequestMapping("/listUsers")
-    public String listUsers(Authentication authentication) throws Exception {
-        logger.info("listUsers controller is called");
-
-        // check user authorizations
-        userService.isAdmin(authentication);
-
-        return "userList";
-    }
 }

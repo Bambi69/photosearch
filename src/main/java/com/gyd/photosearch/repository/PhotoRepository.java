@@ -190,11 +190,8 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         // finally, we add the filter to the request
         request.setQuery(boolQuery);
 
-        // query elasticserach
-        SearchResponse searchResponse = request.get();
-
-        // return it
-        return buildResultFromSearchResponse(searchResponse);
+        // query elasticserach, convert result and return it
+        return buildResultFromSearchResponse(request.get());
     }
 
     /**

@@ -4,6 +4,8 @@ import com.gyd.photosearch.entity.User;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
+
 public interface UserService {
 
     /**
@@ -13,6 +15,14 @@ public interface UserService {
      * @return user
      */
     User findByUserName(String userName) throws TechnicalException;
+
+    /**
+     * find all users
+     *
+     * @return all users
+     * @throws TechnicalException
+     */
+    List<User> findAll() throws TechnicalException;
 
     /**
      * service used to create all users with roles and search restrictions
@@ -50,4 +60,20 @@ public interface UserService {
      * @return true if user has "user" role
      */
     Boolean isUserRole(Authentication authentication);
+
+    /**
+     * find user by id
+     *
+     * @param id
+     * @return user
+     * @throws TechnicalException
+     */
+    User findById(String id) throws TechnicalException;
+
+    /**
+     * get all roles
+     *
+     * @return all roles
+     */
+    List<String> getAllRoles();
 }

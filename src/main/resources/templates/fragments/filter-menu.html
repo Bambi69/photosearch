@@ -117,6 +117,12 @@
                     </ul>
                     <!-- /.nav-second-level -->
                 </li>
+
+                <!-- déconnexion -->
+                <li>
+                    <form name="logout" th:action="@{/logout}" method="post" />
+                    <a href="#" onclick="Logout()" ><i class="fa fa-sign-out fa-fw"></i> Déconnexion</a>
+                </li>
             </ul>
         </div>
         <!-- /.sidebar-collapse -->

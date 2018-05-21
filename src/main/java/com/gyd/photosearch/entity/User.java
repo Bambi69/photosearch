@@ -8,15 +8,20 @@ public class User extends GenericEntity implements Serializable {
 
     private String userName;
     private String password;
+    private String firstName;
+    private String lastName;
+    private String email;
     private String role;
     private List<String> authorizedFaces = new ArrayList<>();
 
     public User() {
     }
 
-    public User(String userName, String password, String role, List<String> authorizedFaces) {
+    public User(String userName, String password, String firstName, String lastName, String role, List<String> authorizedFaces) {
         this.userName = userName;
         this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.role = role;
         this.authorizedFaces = authorizedFaces;
     }
@@ -51,5 +56,29 @@ public class User extends GenericEntity implements Serializable {
 
     public void setAuthorizedFaces(List<String> authorizedFaces) {
         this.authorizedFaces = authorizedFaces;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

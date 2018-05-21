@@ -4,9 +4,12 @@ import com.gyd.photosearch.entity.User;
 import com.gyd.photosearch.exception.TechnicalException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class UserRepository extends TemplateRepository<User> {
@@ -64,5 +67,24 @@ public class UserRepository extends TemplateRepository<User> {
      */
     public User findById(String id) throws TechnicalException {
         return findById(userIndexName, userIndexType, id);
+    }
+
+    /**
+     * find all users
+     *
+     * @return all users
+     * @throws TechnicalException
+     */
+    public List<User> findAll() throws TechnicalException {
+
+        logger.info("PhotoRepository - findAll");
+
+        // query elasticsearch
+        SearchRequestBuilder request = esClient.prepareSearch(userIndexName)
+                .setTypes(userIndexType)
+                .setExplain(true)
+                ;
+
+        return convertSearchResponse(request.get());
     }
 }

@@ -15,26 +15,25 @@
         </div>
         <!-- /.navbar-header -->
 
-        <ul class="nav navbar-top-links navbar-right">
+        <ul sec:authorize="hasRole('ROLE_ADMIN')" class="nav navbar-top-links navbar-right">
 
             <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    <i class="fa fa-gear fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu">
 
-                    <!-- administration -->
-                    <li sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:href="@{/administration}"><i class="fa fa-gear fa-fw"></i> Administration</a>
+                    <!-- gestion des indexations -->
+                    <li>
+                        <a th:href="@{/administration}"><i class="fa fa-photo fa-fw"></i> Import photos</a>
                     </li>
 
                     <li class="divider"></li>
 
-                    <!-- déconnexion -->
+                    <!-- Gestion des utilisateurs -->
                     <li>
-                        <form name="logout" th:action="@{/logout}" method="post" />
-                        <a href="#" onclick="Logout()" ><i class="fa fa-sign-out fa-fw"></i> Déconnexion</a>
+                        <a th:href="@{/listUsers}"><i class="fa fa-users fa-fw"></i> Utilisateurs</a>
                     </li>
                 </ul>
                 <!-- /.dropdown-user -->

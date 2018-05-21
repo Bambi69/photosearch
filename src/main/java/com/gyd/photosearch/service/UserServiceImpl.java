@@ -36,6 +36,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findAll() throws TechnicalException {
+        return userRepository.findAll();
+    }
+
+    @Override
     public void createUsers() {
 
         // create user index
@@ -101,14 +106,28 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    @Override
+    public User findById(String id) throws TechnicalException {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public List<String> getAllRoles() {
+        List<String> roles = new ArrayList<>();
+        roles.add(ROLE_ADMIN);
+        roles.add(ROLE_MODERATOR);
+        roles.add(ROLE_USER);
+        return roles;
+    }
+
     /**
      * build users list
      */
     private void buildUserList() {
 
-        User gael = new User("gaely", "vlmkq@&123", ROLE_ADMIN, null);
+        User gael = new User("gaely", "vlmkq@&123", "Gaël", "YVRARD", ROLE_ADMIN, null);
 
-        User helene = new User("helened", "vlmkq@&123", ROLE_MODERATOR, null);
+        User helene = new User("helened", "vlmkq@&123", "Hélène", "DEVELLE", ROLE_MODERATOR, null);
 
         List<String> julienAuthorizedFaces = new ArrayList<>();
         julienAuthorizedFaces.add("Rose DEVELLE");
@@ -116,14 +135,14 @@ public class UserServiceImpl implements UserService {
         julienAuthorizedFaces.add("Louison YVRARD");
         julienAuthorizedFaces.add("Leon TRONTTIN");
         julienAuthorizedFaces.add("Charlotte WITTMAN");
-        User julien = new User("juliend", "vlmkq@&123", ROLE_USER, julienAuthorizedFaces);
+        User julien = new User("juliend", "vlmkq@&123", "Julien", "DEVELLE", ROLE_USER, julienAuthorizedFaces);
 
         List<String> germainAuthorizedFaces = new ArrayList<>();
         germainAuthorizedFaces.add("Laurianne GAUTHIER");
         germainAuthorizedFaces.add("Margot YVRARD");
         germainAuthorizedFaces.add("Louison YVRARD");
         germainAuthorizedFaces.add("Axel YVRARD");
-        User germain = new User("germainy", "vlmkq@&123", ROLE_USER, germainAuthorizedFaces);
+        User germain = new User("germainy", "vlmkq@&123", "Germain", "YVRARD", ROLE_USER, germainAuthorizedFaces);
 
         users.add(gael);
         users.add(helene);
