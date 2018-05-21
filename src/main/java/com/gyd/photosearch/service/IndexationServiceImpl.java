@@ -52,9 +52,6 @@ public class IndexationServiceImpl implements IndexationService {
     @Value("${photo.tag.confidentiel}")
     private String confidentialTag;
 
-    @Value("${photo.tag.public}")
-    private String publicTag;
-
     @Value("${photo.tag.withoutFace}")
     private String withoutFaceTag;
 
@@ -227,14 +224,6 @@ public class IndexationServiceImpl implements IndexationService {
                 // set camera model
                 p.setCameraModel(cameraMake + " - " + cameraModel);
 
-                // retrieve original date time
-                Date originalDateTime = exifFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
-                Calendar c = Calendar.getInstance();
-                c.setTime(originalDateTime);
-                p.setDateTimeOriginal(DateUtil.convertDateToEsFormat(originalDateTime));
-                p.setYearTimeOriginal(c.get(Calendar.YEAR));
-                p.setMonthTimeOriginal(DateUtil.getMonthFromDate(originalDateTime));
-
                 // add tag
                 p.getTags().add(withCameraTag);
 
@@ -243,6 +232,14 @@ public class IndexationServiceImpl implements IndexationService {
                 // add tag
                 p.getTags().add(withoutCameraTag);
             }
+
+            // retrieve original date time
+            Date originalDateTime = exifFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
+            Calendar c = Calendar.getInstance();
+            c.setTime(originalDateTime);
+            p.setDateTimeOriginal(DateUtil.convertDateToEsFormat(originalDateTime));
+            p.setYearTimeOriginal(c.get(Calendar.YEAR));
+            p.setMonthTimeOriginal(DateUtil.getMonthFromDate(originalDateTime));
         }
 
         // READ IPTC METADATA
@@ -256,7 +253,6 @@ public class IndexationServiceImpl implements IndexationService {
                 for (int j = 0; j < keywords.length; j++) {
                     if (keywords[j].compareTo(confidentialTag)==0) {
                         p.setConfidential(true);
-                        p.getTags().add(confidentialTag);
                     } else {
                         p.getFaces().add(keywords[j]);
                     }
@@ -269,11 +265,6 @@ public class IndexationServiceImpl implements IndexationService {
             // if no face, add tag to this photo
             if (p.getFaces().size() == 0) {
                 p.getTags().add(withoutFaceTag);
-            }
-
-            // if no confidential tag, add public tag
-            if (!p.getTags().contains(confidentialTag)) {
-                p.getTags().add(publicTag);
             }
         }
 

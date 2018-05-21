@@ -287,22 +287,22 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         PhotoList result = new PhotoList();
 
         // retrieve faces facet from response
-        SimpleFacet facesFacet = buildSimpleFacetFromSearchResponse(searchResponse, FACE_AGGREGATION, faceFacetName);
+        SimpleFacet facesFacet = buildSimpleFacetFromSearchResponse(searchResponse, FACE_AGGREGATION, faceFacetName, String.class);
 
         // retrieve cameras facet from response
-        SimpleFacet camerasFacet = buildSimpleFacetFromSearchResponse(searchResponse, CAMERA_AGGREGATION, cameraFacetName);
+        SimpleFacet camerasFacet = buildSimpleFacetFromSearchResponse(searchResponse, CAMERA_AGGREGATION, cameraFacetName, String.class);
 
         // retrieve types facet from response
-        SimpleFacet typesFacet = buildSimpleFacetFromSearchResponse(searchResponse, TYPE_AGGREGATION, typeFacetName);
+        SimpleFacet typesFacet = buildSimpleFacetFromSearchResponse(searchResponse, TYPE_AGGREGATION, typeFacetName, String.class);
 
         // retrieve confidential facet from response
-        SimpleFacet confidentialFacet = buildSimpleFacetFromSearchResponse(searchResponse, CONFIDENTIAL_AGGREGATION, confidentialFacetName);
+        SimpleFacet confidentialFacet = buildSimpleFacetFromSearchResponse(searchResponse, CONFIDENTIAL_AGGREGATION, confidentialFacetName, Boolean.class);
 
         // retrieve indexation name facet from response
-        SimpleFacet indexationNameFacet = buildSimpleFacetFromSearchResponse(searchResponse, INDEXATION_AGGREGATION, indexationNameFacetName);
+        SimpleFacet indexationNameFacet = buildSimpleFacetFromSearchResponse(searchResponse, INDEXATION_AGGREGATION, indexationNameFacetName, String.class);
 
         // retrieve nb faces facet from response
-        SimpleFacet nbFacesFacet = buildSimpleFacetFromSearchResponse(searchResponse, NB_FACES_AGGREGATION, nbFacesFacetName);
+        SimpleFacet nbFacesFacet = buildSimpleFacetFromSearchResponse(searchResponse, NB_FACES_AGGREGATION, nbFacesFacetName, Long.class);
 
         // retrieve months facets from response
         InternalDateHistogram internalDateHistogram = searchResponse.getAggregations().get(MONTH_AGGREGATION);
@@ -376,7 +376,7 @@ public class PhotoRepository extends TemplateRepository<Photo> {
      * @param facetName name of facet to build
      * @return simple facet (list of value with count)
      */
-    private SimpleFacet buildSimpleFacetFromSearchResponse(SearchResponse searchResponse, String aggregationReference, String facetName) {
+    private SimpleFacet buildSimpleFacetFromSearchResponse(SearchResponse searchResponse, String aggregationReference, String facetName, Class valueClass) {
 
         SimpleFacet result = new SimpleFacet();
         Terms termsByFace = searchResponse.getAggregations().get(aggregationReference);
@@ -384,11 +384,20 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         result.setGlobalCount(termsByFace.getDocCountError() + termsByFace.getSumOfOtherDocCounts());
         Integer facesFacetCount = 0;
         for (Terms.Bucket entry : termsByFace.getBuckets()) {
-            try {
+
+            if (valueClass == String.class) {
                 result.getFacetEntries().put((String) entry.getKey(), entry.getDocCount());
-            } catch (ClassCastException e) {
+            } else if (valueClass == Long.class) {
                 result.getFacetEntries().put(((Long) entry.getKey()).toString(), entry.getDocCount());
+            } else if (valueClass == Boolean.class) {
+                Long boolValue = (Long) entry.getKey();
+                if (boolValue == 0) {
+                    result.getFacetEntries().put(Boolean.FALSE.toString(), entry.getDocCount());
+                } else {
+                    result.getFacetEntries().put(Boolean.TRUE.toString(), entry.getDocCount());
+                }
             }
+
             facesFacetCount += (int) entry.getDocCount();
         }
         result.setGlobalCount(new Long(facesFacetCount));
