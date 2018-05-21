@@ -48,4 +48,14 @@ public class AdministrationController {
 
         return "administration";
     }
+
+    @RequestMapping("/listUsers")
+    public String listUsers(Authentication authentication) throws Exception {
+        logger.info("listUsers controller is called");
+
+        // check user authorizations
+        userService.isAdmin(authentication);
+
+        return "userList";
+    }
 }

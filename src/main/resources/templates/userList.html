@@ -34,38 +34,35 @@
 </head>
 <body>
 
-    <div id="wrapper">
+<div id="wrapper">
 
-        <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
 
-            <!-- horizontal main menu -->
-            <div th:replace="fragments/main-menu :: main-menu" />
+        <!-- horizontal main menu -->
+        <div th:replace="fragments/main-menu :: main-menu" />
 
-        </nav>
+    </nav>
 
-        <!-- exécuter indexation -->
-        <a th:href="@{/indexation}"><i class="fa fa-fw"></i> Exécuter indexation</a>
+    <!-- créer les utilisateurs -->
+    <a th:href="@{/createUsers}"><i class="fa fa-fw"></i> Créer les utilisateurs</a>
 
-        <!-- créer les utilisateurs -->
-        <a th:href="@{/listUsers}"><i class="fa fa-fw"></i> Gestion des utilisateurs</a>
+</div> <!-- wrapper -->
 
-    </div> <!-- wrapper -->
+<!-- general functions -->
+<script src="global/general-functions.js"></script>
 
-    <!-- general functions -->
-    <script src="global/general-functions.js"></script>
+<!-- jQuery -->
+<script src="vendor/jquery/jquery.min.js"></script>
 
-    <!-- jQuery -->
-    <script src="vendor/jquery/jquery.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!-- Metis Menu Plugin JavaScript -->
+<script src="vendor/metisMenu/metisMenu.min.js"></script>
 
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="vendor/metisMenu/metisMenu.min.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="dist/js/sb-admin-2.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="dist/js/sb-admin-2.js"></script>
 
 </body>
 </html>

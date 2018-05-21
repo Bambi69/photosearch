@@ -1,13 +1,13 @@
 package com.gyd.photosearch.entity;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SimpleFacet {
 
     String name;
     Long globalCount;
-    Map<String, Long> facetEntries = new HashMap<>();
+    Map<String, Long> facetEntries = new LinkedHashMap<>();
 
     public String getName() {
         return name;

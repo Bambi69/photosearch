@@ -9,6 +9,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -139,8 +140,11 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                 //.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 //.setPostFilter(QueryBuilders.rangeQuery("age").from(12).to(18))  // Filter
                 .addAggregation(
-                        AggregationBuilders.terms(FACE_AGGREGATION)
+                        AggregationBuilders
+                                .terms(FACE_AGGREGATION)
                                 .field(faceColumnName)
+                                .order(BucketOrder.count(false))
+                                .size(15)
                 )
                 .addAggregation(
                         AggregationBuilders.dateHistogram(MONTH_AGGREGATION)
@@ -159,6 +163,7 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                 .addAggregation(
                         AggregationBuilders.terms(TYPE_AGGREGATION)
                                 .field(typeColumnName)
+                                .order(BucketOrder.key(true))
                 )
                 .addAggregation(
                         AggregationBuilders.terms(CONFIDENTIAL_AGGREGATION)
