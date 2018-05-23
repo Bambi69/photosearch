@@ -137,6 +137,11 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public List<String> findAllFaces() {
+        return photoRepository.findAllFaces();
+    }
+
+    @Override
     public SearchParameters rebuildSearchParametersForSwitchPageAction(
             SearchParameters searchParameters, Integer requestedPageNumber) {
 

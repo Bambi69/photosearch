@@ -1,6 +1,7 @@
 package com.gyd.photosearch.controller;
 
 import com.gyd.photosearch.entity.User;
+import com.gyd.photosearch.service.PhotoService;
 import com.gyd.photosearch.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +20,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PhotoService photoService;
 
     private List<User> userList;
 
@@ -41,36 +45,62 @@ public class UserController {
         // check user authorizations
         userService.isAdmin(authentication);
 
-        // list all users
-        userList = userService.findAll();
-
-        model.addAttribute("userList", userList);
+        // update model
+        model.addAttribute("userList", userService.findAll());
 
         return "userList";
     }
 
     @GetMapping("/editUser")
-    public String editUser(
-            @RequestParam(value="id", required=true) String id,
+    public String userForm(
+            Authentication authentication,
+            @RequestParam(value="id", required=false) String id,
             Model model) throws Exception {
 
         logger.info("editUser is called");
 
+        // check user authorizations
+        userService.isAdmin(authentication);
+
         // search user
-        User user = userService.findById(id);
+        User userForm = new User();
+        if (id != null && id.compareTo("") !=0) {
+            userForm = userService.findById(id);
+        }
 
         // update model
-        model.addAttribute("user", user);
+        model.addAttribute("userForm", userForm);
         model.addAttribute("roles", userService.getAllRoles());
+        model.addAttribute("allFaces", photoService.findAllFaces());
 
         return "userDetail";
     }
 
     @PostMapping("/editUser")
-    public String editUser(
-            @ModelAttribute User user) throws Exception {
+    public String userSubmit(
+            Authentication authentication,
+            @ModelAttribute User userForm) throws Exception {
 
         logger.info("saveUser is called");
+
+        // check user authorizations
+        userService.isAdmin(authentication);
+
+        // save user
+        userService.save(userForm);
+
+        return "redirect:/listUsers";
+    }
+
+    @PostMapping("/deleteUser")
+    public String deleteUser(
+            Authentication authentication,
+            @RequestParam(value="id", required=false) String id) throws Exception {
+
+        logger.info("deleteUser controller is called");
+
+        // delete user
+        userService.delete(id);
 
         return "redirect:/listUsers";
     }

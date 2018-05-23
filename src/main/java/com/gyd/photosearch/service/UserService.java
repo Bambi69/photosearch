@@ -76,4 +76,18 @@ public interface UserService {
      * @return all roles
      */
     List<String> getAllRoles();
+
+    /**
+     * create or update user
+     *
+     * @param user with data
+     */
+    void save(User user) throws Exception;
+
+    /**
+     * delete user
+     *
+     * @param id
+     */
+    void delete(String id);
 }

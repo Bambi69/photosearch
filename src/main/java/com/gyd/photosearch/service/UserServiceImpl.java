@@ -13,7 +13,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -45,29 +44,6 @@ public class UserServiceImpl implements UserService {
 
         // create user index
         userRepository.createUserIndex();
-
-        // build user list
-        buildUserList();
-
-        // instance a json mapper
-        ObjectMapper mapper = new ObjectMapper(); // create once, reuse
-
-        // create all users
-        Iterator<User> usersIt = users.iterator();
-        while (usersIt.hasNext()) {
-            User userToCreate = usersIt.next();
-
-            // generate json (needed to index it in elastic search)
-            try {
-                userToCreate.setJson(mapper.writeValueAsBytes(userToCreate));
-            } catch (JsonProcessingException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
-            }
-
-            // finally create user
-            userRepository.createUser(userToCreate);
-        }
     }
 
     @Override
@@ -120,33 +96,32 @@ public class UserServiceImpl implements UserService {
         return roles;
     }
 
-    /**
-     * build users list
-     */
-    private void buildUserList() {
+    @Override
+    public void save(User user) throws Exception {
 
-        User gael = new User("gaely", "vlmkq@&123", "Gaël", "YVRARD", ROLE_ADMIN, null);
+        // if id is provided, update user
+        if (user.getId() != null && user.getId().compareTo("")!=0) {
+            userRepository.update(user);
 
-        User helene = new User("helened", "vlmkq@&123", "Hélène", "DEVELLE", ROLE_MODERATOR, null);
+        // else create it
+        } else {
 
-        List<String> julienAuthorizedFaces = new ArrayList<>();
-        julienAuthorizedFaces.add("Rose DEVELLE");
-        julienAuthorizedFaces.add("Margot YVRARD");
-        julienAuthorizedFaces.add("Louison YVRARD");
-        julienAuthorizedFaces.add("Leon TRONTTIN");
-        julienAuthorizedFaces.add("Charlotte WITTMAN");
-        User julien = new User("juliend", "vlmkq@&123", "Julien", "DEVELLE", ROLE_USER, julienAuthorizedFaces);
+            // generate json (needed to index it in elastic search)
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                user.setJson(mapper.writeValueAsBytes(user));
+            } catch (JsonProcessingException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+            }
 
-        List<String> germainAuthorizedFaces = new ArrayList<>();
-        germainAuthorizedFaces.add("Laurianne GAUTHIER");
-        germainAuthorizedFaces.add("Margot YVRARD");
-        germainAuthorizedFaces.add("Louison YVRARD");
-        germainAuthorizedFaces.add("Axel YVRARD");
-        User germain = new User("germainy", "vlmkq@&123", "Germain", "YVRARD", ROLE_USER, germainAuthorizedFaces);
+            // create user
+            userRepository.createUser(user);
+        }
+    }
 
-        users.add(gael);
-        users.add(helene);
-        users.add(julien);
-        users.add(germain);
+    @Override
+    public void delete(String id) {
+        userRepository.delete(id);
     }
 }

@@ -5,6 +5,8 @@ import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.exception.TechnicalException;
 
+import java.util.List;
+
 public interface PhotoService {
 
     /**
@@ -61,4 +63,11 @@ public interface PhotoService {
      * @throws Exception
      */
     Photo updateConfidentiality(Photo photoInSession) throws Exception;
+
+    /**
+     * find all faces from indexed photos
+     *
+     * @return all faces
+     */
+    List<String> findAllFaces();
 }

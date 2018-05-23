@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -404,5 +401,38 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         }
         result.setGlobalCount(new Long(facesFacetCount));
         return result;
+    }
+
+    /**
+     * list all faces from indexed photos
+     *
+     * @return all identified faces
+     */
+    public List<String> findAllFaces() {
+
+        logger.info("findAllFaces");
+
+        // query elasticsearch
+        SearchRequestBuilder request = esClient.prepareSearch(photoIndexName)
+                .setTypes(photoIndexType)
+                .addAggregation(
+                        AggregationBuilders
+                                .terms(FACE_AGGREGATION)
+                                .field(faceColumnName)
+                                .order(BucketOrder.key(true))
+                                .size(10000)
+                );
+
+        // retrieve all terms from request results
+        Terms termsByFace = request.get().getAggregations().get(FACE_AGGREGATION);
+
+        // build resuls
+        List<String> result = new ArrayList<>();
+        for (Terms.Bucket entry : termsByFace.getBuckets()) {
+            result.add((String) entry.getKey());
+        }
+
+        return result;
+
     }
 }

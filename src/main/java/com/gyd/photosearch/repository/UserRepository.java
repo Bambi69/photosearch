@@ -5,11 +5,16 @@ import com.gyd.photosearch.exception.TechnicalException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 @Repository
 public class UserRepository extends TemplateRepository<User> {
@@ -19,6 +24,21 @@ public class UserRepository extends TemplateRepository<User> {
 
     @Value("${elasticsearch.userindex.type}")
     private String userIndexType;
+
+    @Value("${elasticsearch.indexpattern.user.userName}")
+    private String columnUserName;
+    @Value("${elasticsearch.indexpattern.user.password}")
+    private String columnPassword;
+    @Value("${elasticsearch.indexpattern.user.firstName}")
+    private String columnFirstname;
+    @Value("${elasticsearch.indexpattern.user.lastName}")
+    private String columnLastname;
+    @Value("${elasticsearch.indexpattern.user.email}")
+    private String columnEmail;
+    @Value("${elasticsearch.indexpattern.user.role}")
+    private String columnRole;
+    @Value("${elasticsearch.indexpattern.user.authorizedFaces}")
+    private String columnAuthorizedfaces;
 
     public UserRepository() {
         setClassType(User.class);
@@ -86,5 +106,37 @@ public class UserRepository extends TemplateRepository<User> {
                 ;
 
         return convertSearchResponse(request.get());
+    }
+
+    /**
+     * update user
+     *
+     * @param user
+     */
+    public void update(User user) throws TechnicalException, ExecutionException, InterruptedException, IOException {
+        UpdateRequest updateRequest = new UpdateRequest();
+        updateRequest.index(userIndexName);
+        updateRequest.type(userIndexType);
+        updateRequest.id(user.getId());
+        updateRequest.doc(jsonBuilder()
+                .startObject()
+                .field(columnUserName, user.getUserName())
+                .field(columnAuthorizedfaces, user.getAuthorizedFaces())
+                .field(columnEmail, user.getEmail())
+                .field(columnFirstname, user.getFirstName())
+                .field(columnLastname, user.getLastName())
+                .field(columnPassword, user.getPassword())
+                .field(columnRole, user.getRole())
+                .endObject());
+        esClient.update(updateRequest).get();
+    }
+
+    /**
+     * delete user corresponding to this id
+     *
+     * @param id
+     */
+    public void delete(String id) {
+        esClient.prepareDelete(userIndexName, userIndexType, id).get();
     }
 }
