@@ -141,7 +141,7 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                                 .terms(FACE_AGGREGATION)
                                 .field(faceColumnName)
                                 .order(BucketOrder.count(false))
-                                .size(15)
+                                .size(10)
                 )
                 .addAggregation(
                         AggregationBuilders.dateHistogram(MONTH_AGGREGATION)

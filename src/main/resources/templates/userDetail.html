@@ -42,6 +42,9 @@
         <!-- horizontal main menu -->
         <div th:replace="fragments/main-menu :: main-menu" />
 
+        <!-- vertical menu -->
+        <div th:replace="fragments/vertical-menu :: vertical-menu" />
+
     </nav>
 
     <div id="page-wrapper">
@@ -56,7 +59,7 @@
         <div class="row">
             <div class="col-lg-12">
 
-                <p>
+                <p th:if="${userForm.id}">
                     <form action="#" th:action="@{/deleteUser(id=${userForm.id})}" method="post">
                         <button type="submit" class="btn btn-danger">Supprimer cet utilisateur</button>
                     </form>

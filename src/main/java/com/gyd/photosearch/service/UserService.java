@@ -25,9 +25,9 @@ public interface UserService {
     List<User> findAll() throws TechnicalException;
 
     /**
-     * service used to create all users with roles and search restrictions
+     * service used to delete user index
      */
-    void createUsers();
+    void deleteIndex();
 
     /**
      * check if authentication corresponds to admin role

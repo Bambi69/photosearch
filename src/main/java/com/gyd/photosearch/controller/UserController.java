@@ -26,14 +26,14 @@ public class UserController {
 
     private List<User> userList;
 
-    @RequestMapping("/createUsers")
-    public String createUsers(Authentication authentication) throws Exception {
-        logger.info("createUsers controller is called");
+    @RequestMapping("/deleteIndex")
+    public String deleteIndex(Authentication authentication) throws Exception {
+        logger.info("deleteIndex controller is called");
 
         // check user authorizations
         userService.isAdmin(authentication);
 
-        userService.createUsers();
+        userService.deleteIndex();
 
         return "userList";
     }

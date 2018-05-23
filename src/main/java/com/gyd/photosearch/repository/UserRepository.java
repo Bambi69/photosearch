@@ -59,9 +59,9 @@ public class UserRepository extends TemplateRepository<User> {
     }
 
     /**
-     * create ES index to store users
+     * delete and recreate ES index to store users
      */
-    public void createUserIndex() {
+    public void deleteIndex() {
 
         // delete index before starting
         try {

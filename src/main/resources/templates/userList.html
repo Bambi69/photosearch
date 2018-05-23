@@ -48,10 +48,10 @@
         <!-- horizontal main menu -->
         <div th:replace="fragments/main-menu :: main-menu" />
 
-    </nav>
+        <!-- vertical menu -->
+        <div th:replace="fragments/vertical-menu :: vertical-menu" />
 
-    <!-- créer les utilisateurs -->
-    <a th:href="@{/createUsers}"><i class="fa fa-fw"></i> Créer les utilisateurs</a>
+    </nav>
 
 
     <!-- page content -->
@@ -69,6 +69,12 @@
                 <p>
                     <form action="#" th:action="@{/editUser}" method="get">
                         <button type="submit" class="btn btn-primary">Créer un utilisateur</button>
+                    </form>
+                </p>
+
+                <p>
+                    <form action="#" th:action="@{/deleteIndex}" method="get">
+                        <button type="submit" class="btn btn-danger">Vider l'index</button>
                     </form>
                 </p>
 

@@ -40,10 +40,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUsers() {
+    public void deleteIndex() {
 
-        // create user index
-        userRepository.createUserIndex();
+        // delete user index
+        userRepository.deleteIndex();
     }
 
     @Override

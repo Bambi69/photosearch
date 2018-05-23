@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
 </head>
@@ -86,7 +86,7 @@
                 </li>
 
                 <!-- confidential facet-->
-                <li>
+                <li sec:authorize="hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')">
                     <a href="#"><i class="fa fa-lock fa-fw"></i> <baliseTexteNormal th:text="${photoList.confidential.name}" /><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level">
                         <li th:each="confidentialValue: ${photoList.confidential.facetEntries}" >
