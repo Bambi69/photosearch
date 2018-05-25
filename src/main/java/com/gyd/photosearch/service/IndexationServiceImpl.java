@@ -20,6 +20,7 @@ import com.gyd.photosearch.util.DateUtil;
 import com.gyd.photosearch.util.ImageResizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -244,6 +245,17 @@ public class IndexationServiceImpl implements IndexationService {
 
     @Override
     public List<Indexation> findAll() throws TechnicalException {
+
+        List<Indexation> result = null;
+
+        try {
+            result = indexationRepository.findAll();
+        } catch (IndexNotFoundException e) {
+            logger.error("Index not found : try to create it");
+            indexationRepository.deleteIndex();
+            return findAll();
+        }
+
         return indexationRepository.findAll();
     }
 
