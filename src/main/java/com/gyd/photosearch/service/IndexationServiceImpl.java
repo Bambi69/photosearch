@@ -44,6 +44,7 @@ public class IndexationServiceImpl implements IndexationService {
     private static String STATUS_IN_ERROR = "Erreur";
     private static String STATUS_IN_PROGRESS = "En cours";
     private static String STATUS_SUCCESSFUL = "Ok";
+    private static String STATUS_DELETED = "Supprimé";
 
     private static String HD_FOLDER = "hd"; // for high quality genrated images
     private static String THB_FOLDER = "thb"; // for thumbnail images
@@ -51,6 +52,7 @@ public class IndexationServiceImpl implements IndexationService {
     private Integer nbInError;
     private Integer nbProcessed;
     private String archiveDirectoryPath;
+    private String processedDirectoryAboslutePath;
     private String processedHdDirectoryAboslutePath;
     private String processedThbDirectoryAbsolutePath;
     private String processedHdDirectoryResourcePath;
@@ -99,6 +101,46 @@ public class IndexationServiceImpl implements IndexationService {
     private Logger logger = LogManager.getRootLogger();
 
     private List<Photo> photos = new ArrayList<Photo>();
+
+    @Override
+    public void deleteIndexation(String id) throws Exception {
+
+        // find this indexation
+        Indexation indexationToDelete = indexationRepository.findById(id);
+
+        // init global variables
+        archiveDirectoryPath = photosArchivePath + indexationToDelete.getRepositoryName();
+        processedDirectoryAboslutePath = photosProcessedPath + indexationToDelete.getRepositoryName();
+        errorDirectoryPath = photosInErrorPath + indexationToDelete.getRepositoryName();
+
+        // delete repositories
+        deleteDirectory(new File(archiveDirectoryPath));
+        deleteDirectory(new File(processedDirectoryAboslutePath));
+        deleteDirectory(new File(errorDirectoryPath));
+
+        // delete indexed photos
+        photoRepository.deletePhotosByIndexationName(indexationToDelete.getPhotoTag());
+
+        // update indexation status
+        indexationToDelete.setStatus(STATUS_DELETED);
+        indexationRepository.update(indexationToDelete);
+    }
+
+    /**
+     * delete directory (recursively: must delete content before deleting dir)
+     *
+     * @param directoryToBeDeleted
+     * @return
+     */
+    private boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
+    }
 
     /**
      * index photos in elasticsearch

@@ -51,4 +51,11 @@ public interface IndexationService {
      * delete indexation index
      */
     void deleteIndex();
+
+    /**
+     * delete datas corresponding to one indexation (files and indexed datas)
+     *
+     * @param id
+     */
+    void deleteIndexation(String id) throws Exception;
 }

@@ -91,4 +91,21 @@ public class IndexationController {
 
         return "indexationList";
     }
+
+    @RequestMapping("/deleteIndexation")
+    public String deleteIndexation(
+            Authentication authentication,
+            @RequestParam(value="id", required=false) String id) throws Exception {
+
+        logger.info("deleteIndexation controller is called");
+
+        // check user authorizations
+        userService.isAdmin(authentication);
+
+        indexationService.deleteIndexation(id);
+
+        return "redirect:/listIndexations";
+    }
+
+
 }

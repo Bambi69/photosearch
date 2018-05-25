@@ -6,10 +6,10 @@ public class Indexation extends GenericEntity implements Serializable {
 
     private String indexationName;
     private String repositoryName;
+    private String description;
     private String photoTag;
     private String date;
     private Integer duration;
-    private String description;
     private String status;
     private Integer nbFilesToIndex;
     private Integer nbFilesInError;
