@@ -3,9 +3,12 @@ package com.gyd.photosearch.repository;
 import com.gyd.photosearch.entity.*;
 import com.gyd.photosearch.exception.TechnicalException;
 import com.gyd.photosearch.util.DateUtil;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -13,6 +16,7 @@ import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -121,6 +125,28 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     }
 
     /**
+     * index photos
+     */
+    public void indexPhotos(List<Photo> photos) {
+
+        // browse photos to index
+        Iterator<Photo> itPhoto = photos.iterator();
+        while (itPhoto.hasNext()) {
+
+            // retrieve current
+            Photo photoToBeIndexed = itPhoto.next();
+
+            // index your document
+            esClient.prepareIndex(
+                    photoIndexName,
+                    photoIndexType,
+                    photoToBeIndexed.getName())
+                    .setSource(photoToBeIndexed.getJson(), XContentType.JSON)
+                    .get();
+        }
+    }
+
+    /**
      * list all photos from photo index which correspond to search parameters
      *
      * @param searchParameters
@@ -177,6 +203,8 @@ public class PhotoRepository extends TemplateRepository<Photo> {
                 // pagination
                 .setFrom(searchParameters.getFirstItemId())
                 .setSize(searchParameters.getNbItemsByPage())
+                // sort
+                .addSort(dateTimeOriginalColumnName, SortOrder.DESC)
                 // ???
                 .setExplain(true)
                 ;
@@ -434,5 +462,37 @@ public class PhotoRepository extends TemplateRepository<Photo> {
 
         return result;
 
+    }
+
+    /**
+     * delete and create ES index to store photos
+     */
+    public void reinitializeIndex() {
+
+        // delete index before starting
+        try {
+            DeleteIndexResponse deleteResponse = esClient.admin().indices()
+                    .delete(new DeleteIndexRequest(photoIndexName)).actionGet();
+            logger.info("index " + photoIndexName + " successfully deleted");
+
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
+
+        String locationType =
+                "{\n" +
+                        "    \""+photoIndexType+"\": {\n" +
+                        "      \"properties\": {\n" +
+                        "        \"location\": {\n" +
+                        "          \"type\": \"geo_point\"\n" +
+                        "        }\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  }";
+
+        logger.info("trying to create index...");
+        esClient.admin().indices().prepareCreate(photoIndexName)
+                .addMapping(photoIndexType,locationType, XContentType.JSON)
+                .get();
     }
 }

@@ -74,7 +74,7 @@
 
                     <div class="flexbin flexbin-margin" >
                         <a th:each="photo,iterationstatus :${photoList.photos}" th:href="@{/displayPhoto(photoId=${photo.id})}">
-                            <img th:alt="${photo.name}" th:src="${photo.thbUrl}"/>
+                            <img th:alt="${photo.name}" th:src="${photo.pathToThbPhoto}"/>
                         </a>
                     </div>
                 </section>

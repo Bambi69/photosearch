@@ -26,9 +26,9 @@ public class UserController {
 
     private List<User> userList;
 
-    @RequestMapping("/deleteIndex")
-    public String deleteIndex(Authentication authentication) throws Exception {
-        logger.info("deleteIndex controller is called");
+    @RequestMapping("/deleteUserIndex")
+    public String deleteUserIndex(Authentication authentication) throws Exception {
+        logger.info("deleteUserIndex controller is called");
 
         // check user authorizations
         userService.isAdmin(authentication);

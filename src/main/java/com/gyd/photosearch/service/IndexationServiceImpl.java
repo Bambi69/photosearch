@@ -8,10 +8,14 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.GpsDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
 import com.drew.metadata.jpeg.JpegDirectory;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gyd.photosearch.entity.Indexation;
 import com.gyd.photosearch.entity.Location;
 import com.gyd.photosearch.entity.Photo;
+import com.gyd.photosearch.exception.TechnicalException;
 import com.gyd.photosearch.repository.IndexationRepository;
+import com.gyd.photosearch.repository.PhotoRepository;
 import com.gyd.photosearch.util.DateUtil;
 import com.gyd.photosearch.util.ImageResizer;
 import org.apache.logging.log4j.LogManager;
@@ -21,11 +25,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,14 +41,30 @@ import java.util.List;
 @Service
 public class IndexationServiceImpl implements IndexationService {
 
+    private static String STATUS_IN_ERROR = "Erreur";
+    private static String STATUS_IN_PROGRESS = "En cours";
+    private static String STATUS_SUCCESSFUL = "Ok";
+
+    private static String HD_FOLDER = "hd"; // for high quality genrated images
+    private static String THB_FOLDER = "thb"; // for thumbnail images
+
+    private Integer nbInError;
+    private Integer nbProcessed;
+    private String archiveDirectoryPath;
+    private String processedHdDirectoryAboslutePath;
+    private String processedThbDirectoryAbsolutePath;
+    private String processedHdDirectoryResourcePath;
+    private String processedThbDirectoryResourcePath;
+    private String errorDirectoryPath;
+
+    @Value("${path.resources.root}")
+    private String resourcesRootPath;
+
     @Value("${path.photos.toIndex}")
     private String photosToIndexPath;
 
-    @Value("${path.photos.hd.processed}")
-    private String photosHdProcessedPath;
-
-    @Value("${path.photos.thumbnail.processed}")
-    private String photosThbProcessedPath;
+    @Value("${path.photos.processed}")
+    private String photosProcessedPath;
 
     @Value("${path.photos.archive}")
     private String photosArchivePath;
@@ -70,6 +93,9 @@ public class IndexationServiceImpl implements IndexationService {
     @Autowired
     private IndexationRepository indexationRepository;
 
+    @Autowired
+    private PhotoRepository photoRepository;
+
     private Logger logger = LogManager.getRootLogger();
 
     private List<Photo> photos = new ArrayList<Photo>();
@@ -78,13 +104,129 @@ public class IndexationServiceImpl implements IndexationService {
      * index photos in elasticsearch
      */
     @Override
-    public void indexPhotos() {
+    public void indexPhotos(Indexation indexation) throws Exception {
+
+        // check indexation attributes
+        if (indexation.getIndexationName() == null || indexation.getIndexationName().compareTo("") == 0
+                || indexation.getRepositoryName() == null || indexation.getRepositoryName().compareTo("") == 0) {
+            throw new Exception("impossible to import photos : mandatory attributes are null");
+        }
+
+        // check if indexation name not already exists
+        List<Indexation> existingIndexations = indexationRepository.findByName(indexation.getIndexationName());
+        if (existingIndexations != null && existingIndexations.size() > 0) {
+            throw new Exception("this indexation name already exists");
+        }
+
+        // check if indexation name not already exists
+        existingIndexations = indexationRepository.findByRepository(indexation.getRepositoryName());
+        if (existingIndexations != null && existingIndexations.size() > 0) {
+            throw new Exception("this indexation repository already exists");
+        }
+
+        // list all jpg files to index
+        File folder = new File(photosToIndexPath);
+        File[] listOfFiles = folder.listFiles(new FilenameFilter() {
+
+            //apply a filter
+            @Override
+            public boolean accept(File dir, String name) {
+                boolean result;
+                if (name.endsWith(".jpg")) {
+                    result=true;
+                } else {
+                    result=false;
+                }
+                return result;
+            }
+        });
+
+        // return error if no file to index
+        if (listOfFiles == null || listOfFiles.length == 0) {
+            throw new Exception("no photo to index");
+        }
+
+        // init variables
+        nbInError = 0;
+        nbProcessed = 0;
+
+        // set indexation calculated attributes
+        indexation.setDate(DateUtil.convertDateToEsFormat(new Date()));
+        indexation.setPhotoTag(DateUtil.convertDateToSimpleFormat(new Date()) + " - " + indexation.getIndexationName());
+        indexation.setStatus(STATUS_IN_PROGRESS);
+        indexation.setNbFilesToIndex(listOfFiles.length);
+
+        // try to generate json (needed to index it in elastic search)
+        ObjectMapper mapper = new ObjectMapper();
+        indexation.setJson(mapper.writeValueAsBytes(indexation));
+
+        // save indexation object
+        String id = indexationRepository.create(indexation);
+        indexation.setId(id);
+
+        // to calculate duration
+        Instant startInstant = Instant.now();
 
         // initialize list of jpg photos from photosToIndexPath
-        analysePhotosFromRepository();
+        createFolderStructure(indexation.getRepositoryName());
+        analysePhotosFromListOfFiles(listOfFiles, indexation.getPhotoTag());
 
         // create index
-        indexationRepository.indexPhotos(photos);
+        photoRepository.indexPhotos(photos);
+
+        // if no photo in error, delete error folder
+        deleteErrorDirectory();
+
+        // calculate duration
+        Instant endInstant = Instant.now();
+        indexation.setDuration((int) ChronoUnit.SECONDS.between(startInstant,endInstant));
+
+        // set indexation status
+        indexation.setStatus(STATUS_SUCCESSFUL);
+        indexation.setNbFilesInError(nbInError);
+        indexation.setNbFilesProcessed(nbProcessed);
+
+        // update indexation
+        indexationRepository.update(indexation);
+    }
+
+    @Override
+    public Indexation findById(String id) throws TechnicalException {
+        return indexationRepository.findById(id);
+    }
+
+    @Override
+    public List<Indexation> findAll() throws TechnicalException {
+        return indexationRepository.findAll();
+    }
+
+    @Override
+    public void save(Indexation indexation) throws Exception {
+
+        // if id is provided, update indexation
+        if (indexation.getId() != null && indexation.getId().compareTo("")!=0) {
+            //indexationRepository.update(indexation);
+
+            // else create it
+        } else {
+
+            // generate json (needed to index it in elastic search)
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                indexation.setJson(mapper.writeValueAsBytes(indexation));
+            } catch (JsonProcessingException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+            }
+
+            // create indexation
+            indexationRepository.create(indexation);
+        }
+    }
+
+    @Override
+    public void delete(String id) {
+        //indexationRepository.delete(id);
     }
 
     /**
@@ -93,11 +235,7 @@ public class IndexationServiceImpl implements IndexationService {
      * - create thumbnail image to display in list
      * - create HD image to display alone
      */
-    private void analysePhotosFromRepository() {
-
-        // initialize folder and list of files
-        File folder = new File(photosToIndexPath);
-        File[] listOfFiles = folder.listFiles();
+    private void analysePhotosFromListOfFiles(File[] listOfFiles, String indexationPhotoTag) {
 
         // instance a json mapper
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
@@ -105,13 +243,12 @@ public class IndexationServiceImpl implements IndexationService {
         // read list of files
         for (int i = 0; i < listOfFiles.length; i++) {
 
-            // analyzing only jpg files
-            if (listOfFiles[i].isFile() && listOfFiles[i].getName().endsWith(".jpg")) {
+            // check if file is not a folder
+            if (listOfFiles[i].isFile()) {
 
                 // initialize Photo
                 Photo p = new Photo();
                 p.setName(listOfFiles[i].getName());
-                p.setThbName(getThumbnailFileNameFromFileName(p.getName()));
                 p.setDateIndexed(new Date());
 
                 try {
@@ -120,20 +257,23 @@ public class IndexationServiceImpl implements IndexationService {
                     // retrieve relevant metadata
                     retrieveRelevantMetadata(p, listOfFiles[i]);
 
-                    // TODO define indexation references
-                    p.setIndexationName("2015 depuis application Photos");
-
-                    // generate json (needed to index it in elastic search)
-                    p.setJson(mapper.writeValueAsBytes(p));
+                    // define indexation photo tag
+                    p.setIndexationName(indexationPhotoTag);
 
                     // generate thumbnail and HD image from original
-                    generateThumbnailHdImage(p.getName());
+                    p = generateThumbnailHdImage(p, p.getName());
 
                     // finally, move original file to archive folder
                     archiveProcessedPhoto(listOfFiles[i]);
 
+                    // generate json (needed to index it in elastic search)
+                    p.setJson(mapper.writeValueAsBytes(p));
+
                     // if no error, we can add p into the list for indexation
                     photos.add(p);
+
+                    // increment nb processed photos
+                    nbProcessed++;
 
                 // in case of any exception, file is moved in error path
                 } catch (ImageProcessingException e) {
@@ -158,7 +298,47 @@ public class IndexationServiceImpl implements IndexationService {
      * @param file the original photo
      */
     private void archiveProcessedPhoto(File file) throws IOException {
-        Files.move(file.toPath(), Paths.get(photosArchivePath + file.getName()));
+        Files.move(file.toPath(), Paths.get(archiveDirectoryPath + file.getName()));
+    }
+
+    /**
+     * create directories to use during files processing
+     *
+     * @param repositoryName
+     */
+    private void createFolderStructure(String repositoryName) {
+
+        // create archive directory
+        archiveDirectoryPath = photosArchivePath + repositoryName + "/";
+        File archiveDirectory = new File(archiveDirectoryPath);
+        archiveDirectory.mkdir();
+
+        // create HD processed directory
+        processedHdDirectoryAboslutePath = photosProcessedPath + repositoryName + "/" + HD_FOLDER + "/";
+        processedHdDirectoryResourcePath = resourcesRootPath + repositoryName + "/" + HD_FOLDER + "/";
+        File hdDirectory = new File(processedHdDirectoryAboslutePath);
+        hdDirectory.mkdirs();
+
+        // create THB processed directory
+        processedThbDirectoryAbsolutePath = photosProcessedPath + repositoryName + "/" + THB_FOLDER + "/";
+        processedThbDirectoryResourcePath = resourcesRootPath + repositoryName + "/" + THB_FOLDER + "/";
+        File thbDirectory = new File(processedThbDirectoryAbsolutePath);
+        thbDirectory.mkdir();
+
+        // create error directory
+        errorDirectoryPath = photosInErrorPath + repositoryName + "/";
+        File errorDirectory = new File(errorDirectoryPath);
+        errorDirectory.mkdir();
+    }
+
+    /**
+     * if no error, delete directory
+     */
+    private void deleteErrorDirectory() {
+        if (nbInError == 0) {
+            File errorDirectory = new File(errorDirectoryPath);
+            errorDirectory.delete();
+        }
     }
 
     /**
@@ -168,6 +348,10 @@ public class IndexationServiceImpl implements IndexationService {
     private void archivePhotoInError(File file) {
         try {
             Files.move(file.toPath(), Paths.get(photosInErrorPath + file.getName()), StandardCopyOption.REPLACE_EXISTING);
+
+            // increment nb photos in error
+            nbInError++;
+
         } catch (IOException e) {
             logger.error("CRITICAL : impossible to move photo named " + file.getName() + " in error folder");
             logger.error(e.getMessage());
@@ -179,13 +363,19 @@ public class IndexationServiceImpl implements IndexationService {
      * process original image to create hd and thumbnail images
      * @param name
      */
-    private void generateThumbnailHdImage(String name) throws IOException {
+    private Photo generateThumbnailHdImage(Photo photo, String name) throws IOException {
 
         ImageResizer.createThumbnailImage(
-                photosToIndexPath + name, photosThbProcessedPath + getThumbnailFileNameFromFileName(name));
+                photosToIndexPath + name, processedThbDirectoryAbsolutePath + getThumbnailFileNameFromFileName(name));
 
         ImageResizer.createHighQualityImage(
-                photosToIndexPath + name, photosHdProcessedPath + name);
+                photosToIndexPath + name, processedHdDirectoryAboslutePath + name);
+
+        // set resource path to hd and thb photos
+        photo.setPathToThbPhoto(processedThbDirectoryResourcePath + getThumbnailFileNameFromFileName(photo.getName()));
+        photo.setPathToHdPhoto(processedHdDirectoryResourcePath + name);
+
+        return photo;
     }
 
     /**
@@ -322,5 +512,12 @@ public class IndexationServiceImpl implements IndexationService {
             p.setResolution(resolution);
             logger.info("resolution " + resolution);
         }
+    }
+
+    @Override
+    public void deleteIndex() {
+
+        // delete indexation index
+        indexationRepository.deleteIndex();
     }
 }

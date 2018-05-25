@@ -14,6 +14,7 @@ public class DateUtil {
     private static final DateFormatSymbols dfs = new DateFormatSymbols(Locale.FRENCH);
 
     private static String ES_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private static String SIMPLE_DATE_FORMAT = "yyyy/MM/dd";
 
     /**
      * convert org.joda.time.DateTime to java.util.Date
@@ -61,5 +62,14 @@ public class DateUtil {
      */
     public static String convertDateToEsFormat(Date d){
         return new SimpleDateFormat(ES_DATE_FORMAT).format(d);
+    }
+
+    /**
+     * convert date to simple string format
+     * @param d date to convert
+     * @return string date in simple format
+     */
+    public static String convertDateToSimpleFormat(Date d){
+        return new SimpleDateFormat(SIMPLE_DATE_FORMAT).format(d);
     }
 }

@@ -1,7 +1,5 @@
 package com.gyd.photosearch.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,7 +8,6 @@ import java.util.List;
 public class Photo extends GenericEntity implements Serializable {
 
     private String name;
-    private String thbName; // thumbnail generated file name
     private String dateTimeOriginal;
     private Integer yearTimeOriginal;
     private String monthTimeOriginal;
@@ -29,11 +26,9 @@ public class Photo extends GenericEntity implements Serializable {
     private List<String> tags = new ArrayList<>();
     private String indexationName;
 
-    @JsonIgnore
-    private String url;
+    private String pathToHdPhoto;
+    private String pathToThbPhoto; // thumbnail image path
 
-    @JsonIgnore
-    private String thbUrl; // thumbnail image url
 
     public String getName() {
         return name;
@@ -99,30 +94,12 @@ public class Photo extends GenericEntity implements Serializable {
         this.dateIndexed = dateIndexed;
     }
 
-    public String getUrl() {
-        //TODO we must delete the root path
-        return "/photos/" + getName();
-    }
-
-    public String getThbUrl() {
-        //TODO we must delete the root path
-        return "/photos/" + getThbName();
-    }
-
     public String getResolution() {
         return resolution;
     }
 
     public void setResolution(String resolution) {
         this.resolution = resolution;
-    }
-
-    public String getThbName() {
-        return thbName;
-    }
-
-    public void setThbName(String thbName) {
-        this.thbName = thbName;
     }
 
     public Boolean getConfidential() {
@@ -195,5 +172,21 @@ public class Photo extends GenericEntity implements Serializable {
 
     public void setIndexationName(String indexationName) {
         this.indexationName = indexationName;
+    }
+
+    public String getPathToHdPhoto() {
+        return pathToHdPhoto;
+    }
+
+    public void setPathToHdPhoto(String pathToHdPhoto) {
+        this.pathToHdPhoto = pathToHdPhoto;
+    }
+
+    public String getPathToThbPhoto() {
+        return pathToThbPhoto;
+    }
+
+    public void setPathToThbPhoto(String pathToThbPhoto) {
+        this.pathToThbPhoto = pathToThbPhoto;
     }
 }

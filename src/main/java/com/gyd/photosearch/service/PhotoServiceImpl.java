@@ -142,6 +142,13 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public void deleteIndex() {
+
+        // delete photo index
+        photoRepository.reinitializeIndex();
+    }
+
+    @Override
     public SearchParameters rebuildSearchParametersForSwitchPageAction(
             SearchParameters searchParameters, Integer requestedPageNumber) {
 

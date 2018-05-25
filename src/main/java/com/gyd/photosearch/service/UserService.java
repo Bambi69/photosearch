@@ -62,6 +62,13 @@ public interface UserService {
     Boolean isUserRole(Authentication authentication);
 
     /**
+     * get all roles
+     *
+     * @return all roles
+     */
+    List<String> getAllRoles();
+
+    /**
      * find user by id
      *
      * @param id
@@ -69,13 +76,6 @@ public interface UserService {
      * @throws TechnicalException
      */
     User findById(String id) throws TechnicalException;
-
-    /**
-     * get all roles
-     *
-     * @return all roles
-     */
-    List<String> getAllRoles();
 
     /**
      * create or update user

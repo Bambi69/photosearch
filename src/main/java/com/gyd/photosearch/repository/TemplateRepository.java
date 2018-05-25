@@ -40,8 +40,7 @@ public class TemplateRepository<T extends GenericEntity> {
 
             // if index does not exist, return null. Else, in memory authentication cannot succeed
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
             return null;
         }
     }

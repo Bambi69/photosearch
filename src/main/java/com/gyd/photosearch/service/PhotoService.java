@@ -70,4 +70,9 @@ public interface PhotoService {
      * @return all faces
      */
     List<String> findAllFaces();
+
+    /**
+     * delete photo index
+     */
+    void deleteIndex();
 }

@@ -9,11 +9,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
-    @Value("${path.photos.thumbnail.processed}")
-    private String thumbnailPhotos;
+    @Value("${path.photos.processed}")
+    private String processedPhotos;
 
-    @Value("${path.photos.hd.processed}")
-    private String hdPhotos;
+    @Value("${path.resources.root}")
+    private String resourcesRootPath;
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -24,9 +24,8 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
-                .addResourceHandler("/photos/**")
-                .addResourceLocations("file:"+thumbnailPhotos)
-                .addResourceLocations("file:"+hdPhotos);
+                .addResourceHandler(resourcesRootPath + "**")
+                .addResourceLocations("file:"+processedPhotos);
     }
 
 }
