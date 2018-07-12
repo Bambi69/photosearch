@@ -141,8 +141,7 @@ public class PhotoRepository extends TemplateRepository<Photo> {
             // index your document
             esClient.prepareIndex(
                     photoIndexName,
-                    photoIndexType,
-                    photoToBeIndexed.getName())
+                    photoIndexType)
                     .setSource(photoToBeIndexed.getJson(), XContentType.JSON)
                     .get();
         }

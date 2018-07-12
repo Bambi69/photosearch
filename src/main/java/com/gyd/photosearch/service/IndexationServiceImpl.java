@@ -52,16 +52,6 @@ public class IndexationServiceImpl implements IndexationService {
     private static String HD_FOLDER = "hd"; // for high quality genrated images
     private static String THB_FOLDER = "thb"; // for thumbnail images
 
-    private Integer nbInError;
-    private Integer nbProcessed;
-    private String archiveDirectoryPath;
-    private String processedDirectoryAboslutePath;
-    private String processedHdDirectoryAboslutePath;
-    private String processedThbDirectoryAbsolutePath;
-    private String processedHdDirectoryResourcePath;
-    private String processedThbDirectoryResourcePath;
-    private String errorDirectoryPath;
-
     @Value("${path.resources.root}")
     private String resourcesRootPath;
 
@@ -95,6 +85,17 @@ public class IndexationServiceImpl implements IndexationService {
     @Value("${photo.tag.withCamera}")
     private String withCameraTag;
 
+    private Integer nbInError;
+    private Integer nbProcessed;
+    private String archiveDirectoryPath;
+    private String processedDirectoryAboslutePath;
+    private String processedHdDirectoryAboslutePath;
+    private String processedThbDirectoryAbsolutePath;
+    private String processedHdDirectoryResourcePath;
+    private String processedThbDirectoryResourcePath;
+    private String errorDirectoryPath;
+    private List<Photo> photos;
+
     @Autowired
     private IndexationRepository indexationRepository;
 
@@ -102,8 +103,6 @@ public class IndexationServiceImpl implements IndexationService {
     private PhotoRepository photoRepository;
 
     private Logger logger = LogManager.getRootLogger();
-
-    private List<Photo> photos = new ArrayList<Photo>();
 
     @Override
     public void deleteIndexation(String id) throws Exception {
@@ -152,6 +151,9 @@ public class IndexationServiceImpl implements IndexationService {
     @Async
     public CompletableFuture<Void> indexPhotos(Indexation indexation) throws Exception {
 
+        // init all variables
+        reinitVariables();
+
         // check indexation attributes
         if (indexation.getIndexationName() == null || indexation.getIndexationName().compareTo("") == 0
                 || indexation.getRepositoryName() == null || indexation.getRepositoryName().compareTo("") == 0) {
@@ -192,10 +194,6 @@ public class IndexationServiceImpl implements IndexationService {
             throw new Exception("no photo to index");
         }
 
-        // init variables
-        nbInError = 0;
-        nbProcessed = 0;
-
         // set indexation calculated attributes
         indexation.setDate(DateUtil.convertDateToEsFormat(new Date()));
         indexation.setPhotoTag(DateUtil.convertDateToSimpleFormat(new Date()) + " - " + indexation.getIndexationName());
@@ -235,7 +233,26 @@ public class IndexationServiceImpl implements IndexationService {
         // update indexation
         indexationRepository.update(indexation);
 
+        // init all variables
+        reinitVariables();
+
         return CompletableFuture.completedFuture(null);
+    }
+
+    /**
+     * init all global variables
+     */
+    private void reinitVariables() {
+        nbInError = 0;
+        nbProcessed = 0;
+        archiveDirectoryPath = "";
+        processedDirectoryAboslutePath = "";
+        processedHdDirectoryAboslutePath = "";
+        processedThbDirectoryAbsolutePath = "";
+        processedHdDirectoryResourcePath = "";
+        processedThbDirectoryResourcePath = "";
+        errorDirectoryPath = "";
+        photos = new ArrayList<>();
     }
 
     @Override
