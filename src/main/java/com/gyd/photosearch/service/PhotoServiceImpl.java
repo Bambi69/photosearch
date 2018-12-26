@@ -5,15 +5,24 @@ import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.exception.TechnicalException;
 import com.gyd.photosearch.repository.PhotoRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PhotoServiceImpl implements PhotoService {
+
+    private Logger logger = LogManager.getRootLogger();
 
     @Value("${ui.search.nbItemsByPage}")
     private Integer nbItemsByPage;
@@ -26,6 +35,18 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Autowired
     private PhotoRepository photoRepository;
+
+    @Value("${path.photos.confidential}")
+    private String photosConfidentialPath;
+
+    @Value("${path.resources.root}")
+    private String resourcesRootPath;
+
+    @Value("${path.confidential.resources.root}")
+    private String resourcesConfidentialRootPath;
+
+    @Value("${path.photos.processed}")
+    private String photosProcessedPath;
 
     @Override
     public PhotoList findByCriteria(SearchParameters searchParameters) throws Exception {
@@ -128,10 +149,42 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public Photo updateConfidentiality(Photo photo) throws Exception {
+
+        // if photo is confidential, it means photo must become public
+        if (photo.getConfidential()) {
+
+            try {
+                // move hd file to public folder
+                moveFileToPublicFolderFromRelativePath(photo.getPathToHdPhoto());
+
+                // move thumbnail file to public folder
+                moveFileToPublicFolderFromRelativePath(photo.getPathToThbPhoto());
+
+                // change photo relative paths
+                photo.setPathToHdPhoto(photo.getPathToHdPhoto().replace(resourcesConfidentialRootPath, resourcesRootPath));
+                photo.setPathToThbPhoto(photo.getPathToThbPhoto().replace(resourcesConfidentialRootPath, resourcesRootPath));
+
+            } catch (IOException e) {
+
+                // catch this error and continue to manage previous version of this application (old confidential photos are located in public folder)
+                logger.error(e.getMessage());
+            }
+
+        } else {
+
+            // move hd file to confidential folder
+            moveFileToConfidentialFolderFromRelativePath(photo.getPathToHdPhoto());
+
+            // move thumbnail file to confidential folder
+            moveFileToConfidentialFolderFromRelativePath(photo.getPathToThbPhoto());
+
+            // change photo relative path
+            photo.setPathToHdPhoto(photo.getPathToHdPhoto().replace(resourcesRootPath, resourcesConfidentialRootPath));
+            photo.setPathToThbPhoto(photo.getPathToThbPhoto().replace(resourcesRootPath, resourcesConfidentialRootPath));
+        }
+
         photo.setConfidential(!photo.getConfidential());
         photoRepository.update(photo);
-
-        //TODO move confidential photos in another folder and add restrictions to this resource folder
 
         return photo;
     }
@@ -168,5 +221,31 @@ public class PhotoServiceImpl implements PhotoService {
         searchParameters.setFirstItemId(0);
         searchParameters.setActivePage(1);
         return searchParameters;
+    }
+
+    /**
+     * move file to confidential folder from relative path
+     * @param relativePath
+     * @throws IOException
+     */
+    private void moveFileToConfidentialFolderFromRelativePath(String relativePath) throws IOException {
+
+        File file = new File(photosProcessedPath + relativePath.substring(resourcesRootPath.length()));
+        Path confidentialPhotoPath = Paths.get(photosConfidentialPath + relativePath.substring(resourcesRootPath.length()));
+        Files.createDirectories(confidentialPhotoPath.getParent());
+        Files.move(file.toPath(), confidentialPhotoPath);
+    }
+
+    /**
+     * move file to public folder from relative path
+     * @param relativePath
+     * @throws IOException
+     */
+    private void moveFileToPublicFolderFromRelativePath(String relativePath) throws IOException {
+
+        File file = new File(photosConfidentialPath + relativePath.substring(resourcesConfidentialRootPath.length()));
+        Path publicPhotoPath = Paths.get(photosProcessedPath + relativePath.substring(resourcesConfidentialRootPath.length()));
+        Files.createDirectories(publicPhotoPath.getParent());
+        Files.move(file.toPath(), publicPhotoPath);
     }
 }

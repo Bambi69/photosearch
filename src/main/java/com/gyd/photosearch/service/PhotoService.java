@@ -56,7 +56,7 @@ public interface PhotoService {
     Photo findById(String id) throws TechnicalException;
 
     /**
-     * update photo confidentiality tag (true to false or false to true)
+     * update photo confidentiality tag (true to false or false to true) and move photo to appropriate folder (confidential or processed)
      *
      * @param photoInSession
      * @return updated photo

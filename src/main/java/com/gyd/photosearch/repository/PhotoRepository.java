@@ -38,6 +38,12 @@ public class PhotoRepository extends TemplateRepository<Photo> {
     @Value("${elasticsearch.indexpattern.confidential}")
     private String confidentialColumnName;
 
+    @Value("${elasticsearch.indexpattern.hdPath}")
+    private String hdPathColumnName;
+
+    @Value("${elasticsearch.indexpattern.thbPath}")
+    private String thbPathColumnName;
+
     @Value("${elasticsearch.indexpattern.month}")
     private String monthColumnName;
 
@@ -244,6 +250,8 @@ public class PhotoRepository extends TemplateRepository<Photo> {
         updateRequest.doc(jsonBuilder()
                 .startObject()
                 .field(confidentialColumnName, photo.getConfidential())
+                .field(hdPathColumnName, photo.getPathToHdPhoto())
+                .field(thbPathColumnName, photo.getPathToThbPhoto())
                 .endObject());
         esClient.update(updateRequest).get();
     }

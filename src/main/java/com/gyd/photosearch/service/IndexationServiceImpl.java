@@ -166,7 +166,7 @@ public class IndexationServiceImpl implements IndexationService {
             throw new Exception("this indexation name already exists");
         }
 
-        // check if indexation name not already exists
+        // check if indexation repository not already exists
         existingIndexations = indexationRepository.findByRepository(indexation.getRepositoryName());
         if (existingIndexations != null && existingIndexations.size() > 0) {
             throw new Exception("this indexation repository already exists");

@@ -17,6 +17,12 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     @Value("${path.resources.root}")
     private String resourcesRootPath;
 
+    @Value("${path.photos.confidential}")
+    private String photosConfidentialPath;
+
+    @Value("${path.confidential.resources.root}")
+    private String confidentialResourcesRootPath;
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("home");
@@ -25,9 +31,16 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+        // add public photos to registry
         registry
                 .addResourceHandler(resourcesRootPath + "**")
-                .addResourceLocations("file:"+processedPhotos);
+                .addResourceLocations("file:" + processedPhotos);
+
+        // add confidential photos to registry
+        registry
+                .addResourceHandler(confidentialResourcesRootPath + "**")
+                .addResourceLocations("file:" + photosConfidentialPath);
     }
 
 }
