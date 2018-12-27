@@ -70,6 +70,7 @@ public class IndexationRepository extends TemplateRepository<Indexation> {
         // query elasticsearch
         SearchRequestBuilder request = esClient.prepareSearch(indexationIndexName)
                 .setTypes(indexationIndexType)
+                .setSize(1000)
                 .setExplain(true)
                 ;
 

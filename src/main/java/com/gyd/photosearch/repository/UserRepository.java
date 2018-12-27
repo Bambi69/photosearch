@@ -97,11 +97,12 @@ public class UserRepository extends TemplateRepository<User> {
      */
     public List<User> findAll() throws TechnicalException {
 
-        logger.info("PhotoRepository - findAll");
+        logger.info("UserRepository - findAll");
 
         // query elasticsearch
         SearchRequestBuilder request = esClient.prepareSearch(userIndexName)
                 .setTypes(userIndexType)
+                .setSize(1000)
                 .setExplain(true)
                 ;
 
