@@ -1,5 +1,6 @@
 package com.gyd.photosearch.controller;
 
+import com.gyd.photosearch.entity.Photo;
 import com.gyd.photosearch.entity.PhotoList;
 import com.gyd.photosearch.entity.SearchParameters;
 import com.gyd.photosearch.service.PhotoService;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 @Controller
 @SessionAttributes("searchParametersSession")
@@ -186,6 +189,22 @@ public class HomeController {
 
         logger.info("switchPage is called");
 
+        // update search parameters and search photos corresponding to this page
+        switchToOtherPage(model, searchParametersSession, pageNumber);
+
+        return "home";
+    }
+
+    /**
+     * switch to other page
+     *
+     * @param model
+     * @param searchParametersSession
+     * @param pageNumber
+     * @throws Exception
+     */
+    private void switchToOtherPage(Model model, SearchParameters searchParametersSession, Integer pageNumber) throws Exception {
+
         // set search parameters to take into account pagination action
         searchParametersSession = photoService.rebuildSearchParametersForSwitchPageAction(
                 searchParametersSession, pageNumber);
@@ -193,7 +212,103 @@ public class HomeController {
         // search photos and update model
         searchPhotosAndUpdateModel(model, searchParametersSession);
 
+        return;
+    }
+
+    /**
+     * when user is on photo detail and wants to go back to search page
+     *
+     * @param searchParametersSession
+     * @param model
+     * @return
+     */
+    @RequestMapping("/goBackToSearch")
+    public String goBackToSearch(
+            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
+            Model model) throws Exception {
+
+        logger.info("goBackToSearch is called");
+
+        // search photos and update model
+        searchPhotosAndUpdateModel(model, searchParametersSession);
+
         return "home";
+    }
+
+    @RequestMapping("/nextPhoto")
+    public String nextPhoto(
+            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
+            @RequestParam(value="currentPhotoId", required=false) String currentPhotoId,
+            Model model) throws Exception {
+
+        logger.info("nextPhoto is called");
+
+        // iterate on photolist to find next
+        Iterator<Photo> itPhotos = photoList.getPhotos().iterator();
+        Boolean found = false;
+        Photo photo;
+        while (itPhotos.hasNext()) {
+            photo = itPhotos.next();
+
+            // if photo was found on previous iteration, user is redirected to photo corresponding to current iteration
+            if (found) return "redirect:/displayPhoto?photoId="+photo.getId();
+            if (photo.getId().compareTo(currentPhotoId) == 0) found = true;
+        }
+
+        // if photo was found on last iteration, it means it is the last photo of current page: we must go to next page
+        if(found) {
+
+            // firstly, check if active page is not the last one
+            if (searchParametersSession.getActivePage() == photoList.getPages().size()) {
+                return "redirect:/displayPhoto?photoId="+currentPhotoId;
+            }
+
+            // else, switch to next page
+            switchToOtherPage(model, searchParametersSession, searchParametersSession.getActivePage()+1);
+
+            // and redirect user to first item of this new page
+            return "redirect:/displayPhoto?photoId="+photoList.getPhotos().get(0).getId();
+        }
+
+        return "redirect:/displayPhoto?photoId="+currentPhotoId;
+    }
+
+    @RequestMapping("/previousPhoto")
+    public String previousPhoto(
+            @ModelAttribute("searchParametersSession") SearchParameters searchParametersSession,
+            @RequestParam(value="currentPhotoId", required=false) String currentPhotoId,
+            Model model) throws Exception {
+
+        logger.info("previousPhoto is called");
+
+        // iterate on photolist from last to first
+        Boolean found = false;
+        Photo photo;
+        ListIterator<Photo> listIter = photoList.getPhotos().listIterator(photoList.getPhotos().size());
+        while (listIter.hasPrevious()) {
+            photo = listIter.previous();
+
+            // if photo was found on previous iteration, user is redirected to photo corresponding to current iteration
+            if (found) return "redirect:/displayPhoto?photoId="+photo.getId();
+            if (photo.getId().compareTo(currentPhotoId) == 0) found = true;
+        }
+
+        // if photo was found on last iteration, it means it is the first photo of current page: we must go to previous page
+        if(found) {
+
+            // firstly, check if active page is not the first one
+            if (searchParametersSession.getActivePage() == 1) {
+                return "redirect:/displayPhoto?photoId="+currentPhotoId;
+            }
+
+            // else, switch to previous page
+            switchToOtherPage(model, searchParametersSession, searchParametersSession.getActivePage()-1);
+
+            // and redirect user to the last item of this new page
+            return "redirect:/displayPhoto?photoId="+photoList.getPhotos().get(photoList.getPhotos().size()-1).getId();
+        }
+
+        return "redirect:/displayPhoto?photoId="+currentPhotoId;
     }
 
     /**

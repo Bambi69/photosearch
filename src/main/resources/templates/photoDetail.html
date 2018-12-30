@@ -51,8 +51,21 @@
 
         <!-- image detail -->
         <div class="row">
-            <div align="center">
-                <img style="max-width:100%;max-height:50em;display: block" th:alt="${photoInSession.name}" th:src="${photoInSession.pathToHdPhoto}"/>
+            <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                <div align="center">
+                    <img style="max-width:100%;max-height:50em;display: block" th:alt="${photoInSession.name}" th:src="${photoInSession.pathToHdPhoto}"/>
+                </div>
+
+                <!-- Left and right controls -->
+                <a class="left carousel-control" th:href="@{/previousPhoto(currentPhotoId=${photoInSession.id})}" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" th:href="@{/nextPhoto(currentPhotoId=${photoInSession.id})}" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+
             </div>
             <br/><br/>
 
